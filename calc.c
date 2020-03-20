@@ -310,7 +310,7 @@ double calc_prob_region_bisulfite(char* var_list, double *matrix, int read_lengt
     double p[end - start];
     double max = 0;
     for (i = start; i < end; i++) {//for each start position, do the calculation in lower floor
-        p[i - start] = calc_read_prob_bisulfite(char* var_list, matrix, read_length, seq, seq_length, i, seqnt_map, alt, strand);
+        p[i - start] = calc_read_prob_bisulfite(var_list, matrix, read_length, seq, seq_length, i, seqnt_map, alt, strand);
         if(max < p[i - start])max = p[i - start];
     }
     return max;
@@ -331,7 +331,7 @@ double calc_prob_bisulfite(char* var_list, const double *matrix, int read_length
     int i, j;
     double probability = 0;
     if (n_splice == 0) {
-        probability = calc_prob_region_bisulfite(matrix, read_length, seq, seq_length, pos, start, end, seqnt_map, alt, strand);
+        probability = calc_prob_region_bisulfite(var_list, matrix, read_length, seq, seq_length, pos, start, end, seqnt_map, alt, strand);
     }
     else { // calculate the probability for each splice section separately
         int r_pos = 0;
@@ -344,7 +344,7 @@ double calc_prob_bisulfite(char* var_list, const double *matrix, int read_length
 
             double *submatrix = malloc(NT_CODES * r_len * sizeof (double));
             for (j = 0; j < NT_CODES; j++) memcpy(&submatrix[r_len * j], &matrix[read_length * j + r_pos], r_len * sizeof (double));
-            probability += calc_prob_region_bisulfite(submatrix, r_len, seq, seq_length, g_pos, start, end, seqnt_map, alt, strand);
+            probability += calc_prob_region_bisulfite(var_list, submatrix, r_len, seq, seq_length, g_pos, start, end, seqnt_map, alt, strand);
             //maybe we should use greedy
             free(submatrix); submatrix = NULL;
 
