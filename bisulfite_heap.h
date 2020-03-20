@@ -7,8 +7,8 @@ Copyright 2016 Tony Kuo
 This program is distributed under the terms of the GNU General Public License
 */
 
-#ifndef _heap_h_
-#define _heap_h_
+#ifndef _bisulfite_heap_h_
+#define _bisulfite_heap_h_
 
 #include "vector.h"
 
