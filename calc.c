@@ -151,7 +151,7 @@ void set_prob_matrix(double *matrix, const read_t *read, const double *is_match,
 }
 
 void set_prob_matrix_bisulfite(double *matrix, const read_t *read, const double *is_match, const double *no_match, 
-                    const int *seqnt_map, const int bisulfite) {/
+                    const int *seqnt_map, const int bisulfite) {
     int i, b; // array[row * width + col] = value
     for (b = 0; b < read->length; b++) {//對所有read_position搜尋
         for (i = 0; i < NT_CODES; i++) matrix[read->length * i + b] = no_match[b];//#define NT_CODES 21   // Size of nucleotide(核苷酸) code table
@@ -199,7 +199,7 @@ void set_prob_matrix_bisulfite(double *matrix, const read_t *read, const double 
     }
 }
 void set_prob_matrix_bisulfite2(double *matrix, const read_t *read, const double *is_match, const double *no_match, 
-                    const int *seqnt_map, const int bisulfite) {/
+                    const int *seqnt_map, const int bisulfite) {
     int i, b; // array[row * width + col] = value
     for (b = 0; b < read->length; b++) {//對所有read_position搜尋
         for (i = 0; i < NT_CODES; i++) matrix[read->length * i + b] = no_match[b];//#define NT_CODES 21   // Size of nucleotide(核苷酸) code table
