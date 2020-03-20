@@ -283,7 +283,7 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
             if(strand == 0)priority = (v->alt == read[pos])? 1: -1;
             else priority = (v->ref == seq[pos])? 1: -1;
             //node.priority -= matrix[read_length * seqnt_map[c] + (node.pos - pos)]
-            bisulfite_heap_push(h, priority, pos);//heap.push(node);
+            bisulfite_heap_push(h, priority, pos, v->alt);//heap.push(node);
         }//greedy, 用seqnt_map去計算該pos的score, seqnt_map內有quality決定match & mismatch的score
         
         bisulfite_node_t *s;
