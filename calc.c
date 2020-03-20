@@ -271,7 +271,7 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
     if(alt == 1){//altseq
         double priority = 0;//priority = score
         bisulfite_heap_t *h = heap_create(STATS_T);
-        for (int i = 0; i < var_list.length; i++)
+        for (int i = 0; i < sizeof(var_list)/sizeof(var_list[0]); i++)
         {//chr pos ref alt
             variant_t* v = var_list[i];
             if(v->pos<pos && v->pos>end)continue;
@@ -281,7 +281,7 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
             int pos = v->pos;
             double priority;
             if(strand == 0)priority = (v->alt == read[pos])? 1: -1;
-            else priority = (v->ref == read[pos])? 1: -1;
+            else priority = (v->ref == seq[pos])? 1: -1;
             //node.priority -= matrix[read_length * seqnt_map[c] + (node.pos - pos)]
             bisulfite_heap_push(h, priority, pos);//heap.push(node);
         }//greedy, 用seqnt_map去計算該pos的score, seqnt_map內有quality決定match & mismatch的score

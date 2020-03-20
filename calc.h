@@ -14,6 +14,7 @@ This program is distributed under the terms of the GNU General Public License
 #include <errno.h>
 #include <string.h>
 #include "util.h"
+#include <bisulfite_heap.h>
 
 #define NT_CODES 21   // Size of nucleotide code table
 
