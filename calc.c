@@ -321,7 +321,7 @@ double calc_prob_region_bisulfite(char* var_list, double *matrix, int read_lengt
 /*calc_prob_bisulfite(readprobmatrix, read_data[readi]->length, refseq, refseq_length, 
 read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);*/
 //這層處理splice
-double calc_prob_bisulfite(char* var_list, const double *matrix, int read_length, const char *seq, int seq_length, 
+double calc_prob_bisulfite(char* var_list, double *matrix, int read_length, const char *seq, int seq_length, 
                             int pos, int *splice_pos, int *splice_offset, int n_splice, 
                             int *seqnt_map, int alt, int strand) {
     /* Get the sequence g in G and its neighborhood (half a read length flanking regions) */
