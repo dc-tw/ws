@@ -280,7 +280,7 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
             //variant_t* v = var_list[i];
             int pos = v->pos;
             double priority;
-            if(strand == 0)priority = (v->alt == read[pos])? 1: -1;
+            if(strand == 0)priority = (v->alt == seq[pos])? 1: -1;
             else priority = (v->ref == seq[pos])? 1: -1;
             //node.priority -= matrix[read_length * seqnt_map[c] + (node.pos - pos)]
             bisulfite_heap_push(h, priority, pos, v->alt);//heap.push(node);
