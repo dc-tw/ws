@@ -18,7 +18,7 @@ typedef struct {
 } bisulfite_node_t;
 
 typedef struct {
-    node_t *node;
+    bisulfite_node_t *node;
     size_t len, size;
     enum type type;
 } bisulfite_heap_t;
