@@ -1259,9 +1259,9 @@ int main(int argc, char **argv)
     /*---------*/
     //C read from ref-genome, input C to A
     int position=0, cur=0;
-    while (position<read->length)
+    while (position < 100)//read->length
     {
-        if(va_list->data[cur])
+        if(var_list->data[cur])
         ++position;
     }
     /*---------*/
