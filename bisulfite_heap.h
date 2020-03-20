@@ -7,7 +7,8 @@ Copyright 2016 Tony Kuo
 This program is distributed under the terms of the GNU General Public License
 */
 
-
+#ifndef _heap_h_
+#define _heap_h_
 
 #include "vector.h"
 
@@ -29,3 +30,5 @@ void bisulfite_heap_free(bisulfite_heap_t *a);
 void bisulfite_heap_destroy(bisulfite_heap_t *a);
 void bisulfite_heap_push(bisulfite_heap_t *a, double priority, int pos, void *data);
 void *bisulfite_heap_pop(bisulfite_heap_t *a);
+
+#endif
