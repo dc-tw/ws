@@ -71,7 +71,7 @@ void set_prob_matrix(double *matrix, const read_t *read, const double *is_match,
     int i, b; // array[row * width + col] = value
     for (b = 0; b < read->length; b++) {//對所有read搜尋
         for (i = 0; i < NT_CODES; i++) matrix[read->length * i + b] = no_match[b];//#define NT_CODES 21   // Size of nucleotide(核苷酸) code table
-        matrix[read->length * [read->qseq[b] - 'A'] + b] = is_match[b];
+        matrix[read->length * seqnt_map[read->qseq[b] - 'A'] + b] = is_match[b];
         switch (read->qseq[b]) {
         case 'A':
             matrix[read->length * seqnt_map['M' - 'A'] + b] = is_match[b];
@@ -155,7 +155,7 @@ void set_prob_matrix_bisulfite(double *matrix, const read_t *read, const double 
     int i, b; // array[row * width + col] = value
     for (b = 0; b < read->length; b++) {//對所有read_position搜尋
         for (i = 0; i < NT_CODES; i++) matrix[read->length * i + b] = no_match[b];//#define NT_CODES 21   // Size of nucleotide(核苷酸) code table
-        matrix[read->length * [read->qseq[b] - 'A'] + b] = is_match[b];
+        matrix[read->length * seqnt_map[read->qseq[b] - 'A'] + b] = is_match[b];
         switch (read->qseq[b]) {
         case 'A':
             matrix[read->length * seqnt_map['G' - 'A'] + b] = is_match[b];//<====
@@ -203,7 +203,7 @@ void set_prob_matrix_bisulfite2(double *matrix, const read_t *read, const double
     int i, b; // array[row * width + col] = value
     for (b = 0; b < read->length; b++) {//對所有read_position搜尋
         for (i = 0; i < NT_CODES; i++) matrix[read->length * i + b] = no_match[b];//#define NT_CODES 21   // Size of nucleotide(核苷酸) code table
-        matrix[read->length * [read->qseq[b] - 'A'] + b] = is_match[b];
+        matrix[read->length * seqnt_map[read->qseq[b] - 'A'] + b] = is_match[b];
         switch (read->qseq[b]) {
         case 'A':
             matrix[read->length * seqnt_map['G' - 'A'] + b] = is_match[b];//<====
