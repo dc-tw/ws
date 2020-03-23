@@ -31,4 +31,5 @@ void bisulfite_heap_destroy(bisulfite_heap_t *a);
 void bisulfite_heap_push(bisulfite_heap_t *a, double priority, int pos, void *data);
 void *bisulfite_heap_pop(bisulfite_heap_t *a);
 
+
 #endif
