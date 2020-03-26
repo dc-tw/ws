@@ -290,7 +290,7 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
         }//greedy, 用seqnt_map去計算該pos的score, seqnt_map內有quality決定match & mismatch的score
         
         bisulfite_node_t *s;
-        while (s = heap_pop(h), s != NULL)
+        while (s = bisulfite_heap_pop(h), s != NULL)
         {
             //bisulfite_heap_pop(node);//node = heap.pop();//也許要記錄which variant
             if(s->priority<0)break;
