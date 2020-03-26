@@ -13,7 +13,7 @@ This program is distributed under the terms of the GNU General Public License
 #include <math.h>
 #include "calc.h"
 #include "heap.h"
-#include "bisulfite_heap.h"
+//#include "bisulfite_heap.h"
 //#include "calc_gpu.h"
 
 #define M_1_LOG10E (1.0/M_LOG10E)//M_LOG10E   log10(e)
