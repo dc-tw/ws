@@ -271,7 +271,7 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
     
     if(alt == 1){//altseq
         double priority = 0;//priority = score
-        bisulfite_heap_t *h = heap_create(STATS_T);
+        bisulfite_heap_t *h = bisulfite_heap_create(STATS_T);
         int t;
         for (t = 0; t < sizeof(var_list)/sizeof(var_list[0]); t++)
         {//chr pos ref alt
