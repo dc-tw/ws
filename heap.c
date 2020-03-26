@@ -111,7 +111,7 @@ void bisulfite_heap_init(bisulfite_heap_t *a, enum type var_type) {
 
 bisulfite_heap_t *bisulfite_heap_create(enum type var_type) {
     bisulfite_heap_t *a = malloc(sizeof (bisulfite_heap_t));
-    heap_init(a, var_type);
+    bisulfite_heap_init(a, var_type);
     return a;
 }
 
