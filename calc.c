@@ -282,7 +282,7 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
             //variant_t* v = var_list[i];
             int position = v->pos;
             double priority;
-            c = v->alt - 'A';
+            int c = v->alt - 'A';
             priority = (matrix[read_length * seqnt_map[c] + (position - pos)] > 0) ? 
                 matrix[read_length * seqnt_map[c] + (position - pos)] : (-1) * matrix[read_length * seqnt_map[c] + (position - pos)];
             //node.priority -= matrix[read_length * seqnt_map[c] + (node.pos - pos)]
