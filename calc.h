@@ -38,9 +38,9 @@ void calc_prob_snps_region(double *prgu, double *prgv, vector_int_t *combo, vari
 void calc_prob_snps(double *prgu, double *prgv, vector_int_t *combo, variant_t **var_data, double *matrix, int read_length, const char *seq, int seq_length, int pos, int *splice_pos, int *splice_offset, int n_splice, int *seqnt_map);
 
 void set_prob_matrix_bisulfite(double *matrix, const read_t *read, const double *is_match, const double *no_match, const int *seqnt_map, const int bisulfite);
-void set_prob_matrix_2(double *matrix, const read_t *read, const double *is_match, const double *no_match, const int *seqnt_map, const int bisulfite);
-double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length, const char *seq, int seq_length, int pos, int *seqnt_map, int alt, int strand);
-double calc_prob_region_bisulfite(char* var_list, double *matrix, int read_length, const char *seq, int seq_length, int pos, int start, int end, int *seqnt_map, int alt, int strand);
-double calc_prob_bisulfite(char* var_list, double *matrix, int read_length, const char *seq, int seq_length, int pos, int *splice_pos, int *splice_offset, int n_splice, int *seqnt_map, int alt, int strand);
+void set_prob_matrix_bisulfite2(double *matrix, const read_t *read, const double *is_match, const double *no_match, const int *seqnt_map, const int bisulfite);
+double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length, const char *seq, int seq_length, int pos, int *seqnt_map, int alt);
+double calc_prob_region_bisulfite(char* var_list, double *matrix, int read_length, const char *seq, int seq_length, int pos, int start, int end, int *seqnt_map, int alt);
+double calc_prob_bisulfite(char* var_list, double *matrix, int read_length, const char *seq, int seq_length, int pos, int *splice_pos, int *splice_offset, int n_splice, int *seqnt_map, int alt);
 
 #endif

@@ -153,12 +153,11 @@ void set_prob_matrix(double *matrix, const read_t *read, const double *is_match,
 void set_prob_matrix_bisulfite(double *matrix, const read_t *read, const double *is_match, const double *no_match, 
                     const int *seqnt_map, const int bisulfite) {
     int i, b; // array[row * width + col] = value
-    for (b = 0; b < read->length; b++) {//對所有read_position搜尋
+    for (b = 0; b < read->length; b++) {//對所有read搜尋
         for (i = 0; i < NT_CODES; i++) matrix[read->length * i + b] = no_match[b];//#define NT_CODES 21   // Size of nucleotide(核苷酸) code table
         matrix[read->length * seqnt_map[read->qseq[b] - 'A'] + b] = is_match[b];
         switch (read->qseq[b]) {
         case 'A':
-            matrix[read->length * seqnt_map['G' - 'A'] + b] = is_match[b];//<====
             matrix[read->length * seqnt_map['M' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['R' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['V' - 'A'] + b] = is_match[b];
@@ -168,7 +167,6 @@ void set_prob_matrix_bisulfite(double *matrix, const read_t *read, const double 
             matrix[read->length * 13 + b] = is_match[b]; // also W
             break;
         case 'T':
-            matrix[read->length * seqnt_map['C' - 'A'] + b] = is_match[b];//<====
             matrix[read->length * seqnt_map['K' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['Y' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['B' - 'A'] + b] = is_match[b];
@@ -198,48 +196,51 @@ void set_prob_matrix_bisulfite(double *matrix, const read_t *read, const double 
         }
     }
 }
+
 void set_prob_matrix_bisulfite2(double *matrix, const read_t *read, const double *is_match, const double *no_match, 
                     const int *seqnt_map, const int bisulfite) {
     int i, b; // array[row * width + col] = value
-    for (b = 0; b < read->length; b++) {//對所有read_position搜尋
+    for (b = 0; b < read->length; b++) {//對所有read搜尋
         for (i = 0; i < NT_CODES; i++) matrix[read->length * i + b] = no_match[b];//#define NT_CODES 21   // Size of nucleotide(核苷酸) code table
-        matrix[read->length * seqnt_map[read->qseq[b] - 'A'] + b] = is_match[b];
+        //matrix[read->length * seqnt_map[read->qseq[b] - 'A'] + b] = is_match[b];
         switch (read->qseq[b]) {
         case 'A':
-            matrix[read->length * seqnt_map['G' - 'A'] + b] = is_match[b];//<====
-            matrix[read->length * seqnt_map['M' - 'A'] + b] = is_match[b];
-            matrix[read->length * seqnt_map['R' - 'A'] + b] = is_match[b];
-            matrix[read->length * seqnt_map['V' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['T' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['K' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['Y' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['B' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['H' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['D' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['W' - 'A'] + b] = is_match[b];
             matrix[read->length * 13 + b] = is_match[b]; // also W
             break;
         case 'T':
-            matrix[read->length * seqnt_map['C' - 'A'] + b] = is_match[b];//<====
-            matrix[read->length * seqnt_map['K' - 'A'] + b] = is_match[b];
-            matrix[read->length * seqnt_map['Y' - 'A'] + b] = is_match[b];
-            matrix[read->length * seqnt_map['B' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['A' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['M' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['R' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['V' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['H' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['D' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['W' - 'A'] + b] = is_match[b];
             matrix[read->length * 13 + b] = is_match[b]; // also W
             break;
         case 'C':
-            matrix[read->length * seqnt_map['M' - 'A'] + b] = is_match[b];
-            matrix[read->length * seqnt_map['Y' - 'A'] + b] = is_match[b];
-            matrix[read->length * seqnt_map['B' - 'A'] + b] = is_match[b];
-            matrix[read->length * seqnt_map['V' - 'A'] + b] = is_match[b];
-            matrix[read->length * seqnt_map['H' - 'A'] + b] = is_match[b];
-            matrix[read->length * seqnt_map['S' - 'A'] + b] = is_match[b];
-            matrix[read->length * 14 + b] = is_match[b]; // also S
-            break;
-        case 'G':
+            matrix[read->length * seqnt_map['G' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['K' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['R' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['B' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['V' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['D' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['S' - 'A'] + b] = is_match[b];
+            matrix[read->length * 14 + b] = is_match[b]; // also S
+            break;
+        case 'G':
+            matrix[read->length * seqnt_map['C' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['M' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['Y' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['B' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['V' - 'A'] + b] = is_match[b];
+            matrix[read->length * seqnt_map['H' - 'A'] + b] = is_match[b];
             matrix[read->length * seqnt_map['S' - 'A'] + b] = is_match[b];
             matrix[read->length * 14 + b] = is_match[b]; // also S
             break;
@@ -248,7 +249,7 @@ void set_prob_matrix_bisulfite2(double *matrix, const read_t *read, const double
 }
 /*---------------------------------------------------------------------------------------*/
 double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length, const char *seq, int seq_length, 
-                                int pos, int *seqnt_map, int alt, int strand) {
+                                int pos, int *seqnt_map, int alt) {
     int i; // array[width * row + col] = value
     int end = (pos + read_length < seq_length) ? pos + read_length : seq_length;
 
@@ -271,26 +272,26 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
     if(alt == 1){//altseq
         double priority = 0;//priority = score
         bisulfite_heap_t *h = heap_create(STATS_T);
-        for (int i = 0; i < sizeof(var_list)/sizeof(var_list[0]); i++)
+        int t;
+        for (t = 0; t < sizeof(var_list)/sizeof(var_list[0]); t++)
         {//chr pos ref alt
-            variant_t* v = var_list[i];
+            variant_t* v = var_list[t];
             if(v->pos<pos && v->pos>end)continue;
             //node = bisulfite_heap_create(bisulfite_heap_t);//bisulfite_heap node();
             //heap_push(h, ((stats_t *)stats->data[seti])->mut, stats->data[seti]);
             //variant_t* v = var_list[i];
-            int pos = v->pos;
+            int position = v->pos;
             double priority;
-            if(strand == 0)priority = (v->alt == seq[pos])? 1: -1;
-            else priority = (v->ref == seq[pos])? 1: -1;
+            priority = (v->alt == seq[position])? probability[i - position]: -1 * probability[i - position];
             //node.priority -= matrix[read_length * seqnt_map[c] + (node.pos - pos)]
-            bisulfite_heap_push(h, priority, pos, v->alt);//heap.push(node);
+            bisulfite_heap_push(h, priority, position, v->alt);//heap.push(node);
         }//greedy, 用seqnt_map去計算該pos的score, seqnt_map內有quality決定match & mismatch的score
         
         bisulfite_node_t *s;
         while (s = heap_pop(h), s != NULL)
         {
             //bisulfite_heap_pop(node);//node = heap.pop();//也許要記錄which variant
-            if(s->priority <0)break;
+            if(s->priority<0)break;
             probability[s->pos - pos] = s->priority;
         }
         bisulfite_heap_free(h);
@@ -299,7 +300,7 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
 }
 
 double calc_prob_region_bisulfite(char* var_list, double *matrix, int read_length, const char *seq, int seq_length, 
-                                    int pos, int start, int end, int *seqnt_map, int alt, int strand) {
+                                    int pos, int start, int end, int *seqnt_map, int alt) {
     //這一層是所有起點
     if (start < 0) start = 0;
     else if (start >= seq_length) start = seq_length - 1;
@@ -323,7 +324,7 @@ read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_of
 //這層處理splice
 double calc_prob_bisulfite(char* var_list, double *matrix, int read_length, const char *seq, int seq_length, 
                             int pos, int *splice_pos, int *splice_offset, int n_splice, 
-                            int *seqnt_map, int alt, int strand) {
+                            int *seqnt_map, int alt) {
     /* Get the sequence g in G and its neighborhood (half a read length flanking regions) */
     int start = pos - (read_length / 2);
     int end = pos + (read_length / 2);

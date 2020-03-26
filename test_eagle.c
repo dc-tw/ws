@@ -21,7 +21,6 @@ This program is distributed under the terms of the GNU General Public License
 #include "util.h"
 #include "calc.h"
 #include "heap.h"
-#include "bisulfite_heap.h"
 
 /* Constants */
 #define VERSION "1.1.1"
@@ -598,6 +597,94 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
     double log_nv = log((double)var_set->len);
 
     int has_indel = 0;
+
+    /*------Z of CpG---------*/
+    char *new_refseq = strdup(refseq);
+    if(new_refseq[0] == 'C' && new_refseq[1] != 'G')new_refseq[0] = 'Z';
+    int counter;
+    for(counter = 1; counter<refseq_length-1; counter++){
+        if (new_refseq[counter] == 'C')
+        {
+            if (new_refseq[counter+1] == 'G' || new_refseq[counter-1] == 'G')
+            {
+                new_refseq[counter] = 'Z';
+            }
+            
+        }
+    }
+    if(new_refseq[refseq_length-1] == 'C' && new_refseq[refseq_length-2] != 'G')new_refseq[refseq_length-1] = 'Z';
+    
+    /*----four hypothesis----*/
+    char *new_refseq1 = strdup(new_refseq), *new_refseq2 = strdup(refseq), *new_refseq3 = strdup(refseq);
+    for(counter = 1; counter<refseq_length; counter++){
+        if (new_refseq2[counter] == 'C')
+        {
+            new_refseq2[counter] = 'Z';
+        }
+    }
+    /*---reverse---*/
+    int left = 0, right = refseq_length;
+    char tmp = 0;
+    while (left < right)
+    {
+        tmp = *(new_refseq3 + left);
+        *(new_refseq3 + left) = *(new_refseq3 + right);
+        *(new_refseq3 + right) = tmp;
+        left++;
+        right--;
+    }
+    char *new_refseq4 = strdup(new_refseq3);
+    for(counter=0; counter<refseq_length; ++counter){
+        switch (new_refseq3[counter])
+        {
+        case 'A':
+            new_refseq3[counter] = 'C';
+            break;
+        case 'T':
+            new_refseq3[counter] = 'T';
+            break;
+        case 'C':
+            new_refseq3[counter] = 'A';
+            break;
+        case 'G':
+            new_refseq3[counter] = 'Z';
+            break;
+        case 'Z':
+            new_refseq3[counter] = 'Q';
+            break;
+        case 'Q':
+            new_refseq3[counter] = 'C';
+            break;
+        default:
+            break;
+        }
+    }
+    for(counter=0; counter<refseq_length; ++counter){
+        switch (new_refseq4[counter])
+        {
+        case 'A':
+            new_refseq4[counter] = 'Z';
+            break;
+        case 'T':
+            new_refseq4[counter] = 'T';
+            break;
+        case 'C':
+            new_refseq4[counter] = 'A';
+            break;
+        case 'G':
+            new_refseq4[counter] = 'Z';
+            break;
+        case 'Z':
+            new_refseq4[counter] = 'Q';
+            break;
+        case 'Q':
+            new_refseq4[counter] = 'C';
+            break;
+        default:
+            break;
+        }
+    }
+
     /*if (!lowmem)
     {
         for (i = 0; i < stat->combo->len; i++)
@@ -636,7 +723,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         /* Read probability matrix */
         double readprobmatrix[NT_CODES * read_data[readi]->length], readprobmatrix2[NT_CODES * read_data[readi]->length];
         //set_prob_matrix(readprobmatrix, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
-        bisulfite_set_prob_matrix(readprobmatrix, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
+        set_prob_matrix_bisulfite(readprobmatrix, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
         bisulfite_set_prob_matrix2(readprobmatrix2, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
 
         /* Outside Paralog Exact Formuation: Probability that read is from an outside the reference paralogous "elsewhere", f in F.  Approximate the bulk of probability distribution P(r|f):
@@ -650,22 +737,38 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         double a = sum_d(is_match, read_data[readi]->length);
         double elsewhere = log_add_exp(a, a + log_sum_exp(delta, read_data[readi]->length)) - (LGALPHA * (read_data[readi]->length - read_data[readi]->inferred_length));
 
-        double prgu, prgv;
+        double prgu1[4], prgv1[4], prgu2[4], prgv2[4];
         /*---------------------*/
-        prgu1 = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, refseq, refseq_length, read_data[readi]->pos, 
+        prgu1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
-                        read_data[readi]->n_splice, seqnt_map, 0, 0);
-        prgv1 = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, refseq, refseq_length, read_data[readi]->pos, 
+                        read_data[readi]->n_splice, seqnt_map, 0);
+        prgu1[1] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
+        prgu1[2] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
+        prgu1[3] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
+
+        prgv1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
-                        read_data[readi]->n_splice, seqnt_map, 1, 0);
+                        read_data[readi]->n_splice, seqnt_map, 1);
+        prgv1[1] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        prgv1[2] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        prgv1[3] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+
         //alt stand for general or modified
         //use matrix2 for other strand
-        prgu2 = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, refseq, refseq_length, read_data[readi]->pos, 
+        prgu2[0] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
-                        read_data[readi]->n_splice, seqnt_map, 0, 1);
-        prgv2 = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, refseq, refseq_length, read_data[readi]->pos, 
+                        read_data[readi]->n_splice, seqnt_map, 0);
+        prgu2[1] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
+        prgu2[2] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
+        prgu2[3] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
+
+        prgv2[0] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
-                        read_data[readi]->n_splice, seqnt_map, 1, 1);
+                        read_data[readi]->n_splice, seqnt_map, 1);
+        prgv2[1] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        prgv2[2] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        prgv2[3] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+
         //ignore mixture model part, dealing with 2 strand problem for now
         /*---------------------*/
         double pout = elsewhere;
@@ -1473,16 +1576,27 @@ int main(int argc, char **argv)
     clock_t tic = clock();
     vector_t *var_list = vcf_read(vcf_fh);
     print_status("# Read VCF: %s\t%i entries\t%s", vcf_file, (int)var_list->len, asctime(time_info));
+    //len is 4 for test data
     /*---------*/
-    int position=0, cur=0;
-    //store ref-genome first;
-    while (1)//read C into var_list
-    {
-        //if(bam->data[cur]=='C'){
-        //    v.create(); var_list.push_back(v);
-        //}
-        ++cur;
+    fasta_t *f = refseq_fetch(var_list[0]->chr, fa_file);
+    variant_t *v;
+    if (f == NULL)
+        return NULL;
+    char *refseq = f->seq;
+    int refseq_length = f->seq_length;
+    int count;
+    char *tmp = strdup(variant_t(var_list[0]->chr));
+    for(count = 0; count<refseq_length; ++count){
+        if(refseq[count]=='C'){
+            v->alt = 'T';
+            v->ref = 'C';
+            v->pos = count;
+            v->chr = tmp;
+            //variant_t *v = variant_create(tmp, count, 'C', 'T');
+            vector_add(var_list, v);
+        }
     }
+    qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
     
     /*---------*/
 
