@@ -30,4 +30,24 @@ void heap_destroy(heap_t *a);
 void heap_push(heap_t *a, double priority, void *data);
 void *heap_pop(heap_t *a);
 
+
+typedef struct {
+    double priority;
+    int pos;
+    void *data;
+} bisulfite_node_t;
+
+typedef struct {
+    bisulfite_node_t *node;
+    size_t len, size;
+    enum type type;
+} bisulfite_heap_t;
+
+void bisulfite_heap_init(bisulfite_heap_t *a, enum type var_type);
+bisulfite_heap_t *bisulfite_heap_create(enum type var_type);
+void bisulfite_heap_free(bisulfite_heap_t *a);
+void bisulfite_heap_destroy(bisulfite_heap_t *a);
+void bisulfite_heap_push(bisulfite_heap_t *a, double priority, int pos, void *data);
+void *bisulfite_heap_pop(bisulfite_heap_t *a);
+
 #endif
