@@ -21,7 +21,6 @@ This program is distributed under the terms of the GNU General Public License
 #include "util.h"
 #include "calc.h"
 #include "heap.h"
-#include "bisulfite_heap.h"
 
 /* Constants */
 #define VERSION "1.1.1"
@@ -420,7 +419,8 @@ static void calc_likelihood(stats_t *stat, vector_t *var_set, const char *refseq
         }//依quality決定penalty
         /* Read probability matrix */
         double readprobmatrix[NT_CODES * read_data[readi]->length];
-        set_prob_matrix(readprobmatrix, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
+        //set_prob_matrix(readprobmatrix, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
+        bisulfite_set_prob_matrix(readprobmatrix, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
         //is no match 表示penalty, seqnt_map 表offset b=b, read_data[i]表一條read, 最終將readprobmatrix寫成一個?
 
         /* Outside Paralog Exact Formuation: Probability that read is from an outside the reference paralogous "elsewhere", f in F.  Approximate the bulk of probability distribution P(r|f):
@@ -583,6 +583,319 @@ static void calc_likelihood(stats_t *stat, vector_t *var_set, const char *refseq
     }
 }
 
+static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const char *refseq, const int refseq_length, 
+                            read_t **read_data, const int nreads, int seti, int *seqnt_map){
+    size_t i, readi;
+    stat->ref = 0;
+    stat->alt = 0;
+    stat->het = 0;
+    stat->ref_count = 0;
+    stat->alt_count = 0;
+    stat->seen = 0;
+
+    variant_t **var_data = (variant_t **)var_set->data;
+    double log_nv = log((double)var_set->len);
+
+    int has_indel = 0;
+
+    /*------Z of CpG---------*/
+    char *new_refseq = strdup(refseq);
+    if(new_refseq[0] == 'C' && new_refseq[1] != 'G')new_refseq[0] = 'Z';
+    int counter;
+    for(counter = 1; counter<refseq_length-1; counter++){
+        if (new_refseq[counter] == 'C')
+        {
+            if (new_refseq[counter+1] == 'G' || new_refseq[counter-1] == 'G')
+            {
+                new_refseq[counter] = 'Z';
+            }
+            
+        }
+    }
+    if(new_refseq[refseq_length-1] == 'C' && new_refseq[refseq_length-2] != 'G')new_refseq[refseq_length-1] = 'Z';
+    
+    /*----four hypothesis----*/
+    char *new_refseq1 = strdup(new_refseq), *new_refseq2 = strdup(refseq), *new_refseq3 = strdup(refseq), *new_refseq4;
+    for(counter = 1; counter<refseq_length; counter++){
+        if (new_refseq2[counter] == 'C')
+        {
+            new_refseq2[counter] = 'Z';
+        }
+    }
+    /*---reverse---*/
+    int left = 0, right = refseq_length;
+    char tmp = 0;
+    while (left < right)
+    {
+        tmp = *(new_refseq3 + left);
+        *(new_refseq3 + left) = *(new_refseq3 + right);
+        *(new_refseq3 + right) = tmp;
+        left++;
+        right--;
+    }
+    *new_refseq4 = strdup(new_refseq3);
+    for(counter=0; counter<refseq_length; ++counter){
+        switch (new_refseq3[counter])
+        {
+        case 'A':
+            new_refseq3[counter] = 'C';
+            break;
+        case 'T':
+            new_refseq3[counter] = 'T';
+            break;
+        case 'C':
+            new_refseq3[counter] = 'A';
+            break;
+        case 'G':
+            new_refseq3[counter] = 'Z';
+            break;
+        case 'Z':
+            new_refseq3[counter] = 'Q';
+            break;
+        case 'Q':
+            new_refseq3[counter] = 'C';
+            break;
+        default:
+            break;
+        }
+    }
+    for(counter=0; counter<refseq_length; ++counter){
+        switch (new_refseq4[counter])
+        {
+        case 'A':
+            new_refseq4[counter] = 'Z';
+            break;
+        case 'T':
+            new_refseq4[counter] = 'T';
+            break;
+        case 'C':
+            new_refseq4[counter] = 'A';
+            break;
+        case 'G':
+            new_refseq4[counter] = 'Z';
+            break;
+        case 'Z':
+            new_refseq4[counter] = 'Q';
+            break;
+        case 'Q':
+            new_refseq4[counter] = 'C';
+            break;
+        default:
+            break;
+        }
+    }
+
+    /*if (!lowmem)
+    {
+        for (i = 0; i < stat->combo->len; i++)
+        {
+            variant_t *v = var_data[stat->combo->data[i]];
+            if (v->ref[0] == '-' || v->alt[0] == '-' || strlen(v->ref) != strlen(v->alt))
+            {
+                has_indel = 1;
+                break;
+            }
+        }
+    }*/
+
+    /* Aligned reads */
+    for (readi = 0; readi < nreads; readi++)
+    {
+        if (read_data[readi]->pos > var_data[stat->combo->data[0]]->pos || read_data[readi]->end < var_data[stat->combo->data[stat->combo->len - 1]]->pos)
+        { // read must cross all variants in current combo
+            vector_double_add(stat->read_prgv, -DBL_MAX);
+            continue; // read must cross all variants in current combo
+        }
+        stat->seen++;
+
+        double is_match[read_data[readi]->length], no_match[read_data[readi]->length];
+        for (i = 0; i < read_data[readi]->length; i++)
+        {
+            is_match[i] = p_match[read_data[readi]->qual[i]];//2 array紀錄penalty與offset的關係
+            no_match[i] = p_mismatch[read_data[readi]->qual[i]];//quality
+            if (dp)
+            {
+                double n = is_match[i] - 1;
+                is_match[i] += 1 - n;//set every element as 2
+                no_match[i] += 1 - n;
+            }
+        }
+        /* Read probability matrix */
+        double readprobmatrix[NT_CODES * read_data[readi]->length], readprobmatrix2[NT_CODES * read_data[readi]->length];
+        //set_prob_matrix(readprobmatrix, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
+        set_prob_matrix_bisulfite(readprobmatrix, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
+        bisulfite_set_prob_matrix2(readprobmatrix2, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
+
+        /* Outside Paralog Exact Formuation: Probability that read is from an outside the reference paralogous "elsewhere", f in F.  Approximate the bulk of probability distribution P(r|f):
+           a) perfect match = prod[ (1-e) ]
+           b) hamming/edit distance 1 = prod[ (1-e) ] * sum[ (e/3) / (1-e) ]
+           c) lengthfactor = alpha ^ (read length - expected read length). Length distribution, for reads with different lengths (hard clipped), where longer reads should have a relatively lower P(r|f):
+        P(r|f) = (perfect + hamming_1) / lengthfactor */
+        double delta[read_data[readi]->length];
+        for (i = 0; i < read_data[readi]->length; i++)
+            delta[i] = no_match[i] - is_match[i];
+        double a = sum_d(is_match, read_data[readi]->length);
+        double elsewhere = log_add_exp(a, a + log_sum_exp(delta, read_data[readi]->length)) - (LGALPHA * (read_data[readi]->length - read_data[readi]->inferred_length));
+
+        double prgu1[4], prgv1[4], prgu2[4], prgv2[4];
+        /*---------------------*/
+        prgu1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
+                        read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
+                        read_data[readi]->n_splice, seqnt_map, 0);
+        prgu1[1] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
+        prgu1[2] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
+        prgu1[3] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
+
+        prgv1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
+                        read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
+                        read_data[readi]->n_splice, seqnt_map, 1);
+        prgv1[1] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        prgv1[2] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        prgv1[3] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+
+        //alt stand for general(0) or modified(1)
+        //use readprobmatrix2 for other strand
+        prgu2[0] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
+                        read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
+                        read_data[readi]->n_splice, seqnt_map, 0);
+        prgu2[1] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
+        prgu2[2] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
+        prgu2[3] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
+
+        prgv2[0] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
+                        read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
+                        read_data[readi]->n_splice, seqnt_map, 1);
+        prgv2[1] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        prgv2[2] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        prgv2[3] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+
+        //ignore mixture model part, dealing with 2 strand problem for now
+        /*---------------------*/
+        double pout = elsewhere;
+
+        /* Multi-map alignments from XA tags: chr8,+42860367,97M3S,3;chr9,-44165038,100M,4; */
+        if (read_data[readi]->multimapXA != NULL)
+        {
+            int xa_pos, n;
+            char *s, xa_chr[strlen(read_data[readi]->multimapXA) + 1];
+            for (s = read_data[readi]->multimapXA; sscanf(s, "%[^,],%d,%*[^;]%n", xa_chr, &xa_pos, &n) == 2; s += n + 1)
+            {
+                pout = log_add_exp(pout, elsewhere); // the more multi-mapped, the more likely it is the read is from elsewhere (paralogous), hence it scales (multiplied) with the number of multi-mapped locations
+                if (strcmp(xa_chr, read_data[readi]->chr) != 0 && abs(xa_pos - read_data[readi]->pos) < read_data[readi]->length)
+                { // if secondary alignment does not overlap primary aligment
+                    fasta_t *f = refseq_fetch(xa_chr, fa_file);
+                    if (f == NULL)
+                        continue;
+                    char *xa_refseq = f->seq;
+                    int xa_refseq_length = f->seq_length;
+
+                    double *p_readprobmatrix = readprobmatrix;
+                    double *newreadprobmatrix = NULL;
+                    if ((xa_pos < 0 && !read_data[readi]->is_reverse) || (xa_pos > 0 && read_data[readi]->is_reverse))
+                    { // opposite of primary alignment strand
+                        newreadprobmatrix = reverse(readprobmatrix, read_data[readi]->length * NT_CODES);
+                        p_readprobmatrix = newreadprobmatrix;
+                    }
+
+                    xa_pos = abs(xa_pos);
+                    double readprobability = calc_prob(p_readprobmatrix, read_data[readi]->length, xa_refseq, xa_refseq_length, xa_pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map);
+                    prgu[0] = log_add_exp(prgu[0], readprobability);
+                    prgv[0] = log_add_exp(prgv[0], readprobability);
+                    free(newreadprobmatrix);
+                    newreadprobmatrix = NULL;
+                }
+                if (*(s + n) != ';')
+                    break;
+            }
+        }
+        else if (read_data[readi]->multimapNH > 1)
+        { // scale by the number of multimap positions
+            double n = log(read_data[readi]->multimapNH - 1);
+            double readprobability = prgu + n;
+            pout = log_add_exp(pout, elsewhere + n);
+            prgu[0] = log_add_exp(prgu[0], readprobability);
+            prgv[0] = log_add_exp(prgv[0], readprobability);
+        }
+
+        /* Mixture model: probability that the read is from elsewhere, outside paralogous source */
+        pout += lgomega;
+        prgu[0] = log_add_exp(pout, prgu[0]);
+        prgv[0] = log_add_exp(pout, prgv[0]);
+
+        /* Track combination with highest variant likelihood */
+        if (prgv > read_data[readi]->prgv)
+        {
+            read_data[readi]->index = seti;
+            read_data[readi]->prgu = (float)prgu[0];
+            read_data[readi]->prgv = (float)prgv[0];
+            read_data[readi]->pout = (float)pout;
+        }
+
+        /* Mixture model: heterozygosity or heterogeneity as explicit allele frequency mu such that P(r|GuGv) = (mu)(P(r|Gv)) + (1-mu)(P(r|Gu)) */
+        double phet = log_add_exp(LOG50 + prgv[0], LOG50 + prgu[0]);
+        double phet10 = log_add_exp(LOG10 + prgv[0], LOG90 + prgu[0]);
+        double phet90 = log_add_exp(LOG90 + prgv[0], LOG10 + prgu[0]);
+        if (phet10 > phet)
+            phet = phet10;
+        if (phet90 > phet)
+            phet = phet90;
+
+        /* Priors */
+        prgu[0] += ref_prior;
+        prgv[0] += alt_prior - log_nv;
+        phet += het_prior - log_nv;
+        stat->ref += prgu[0];
+        stat->alt += prgv[0];
+        stat->het += phet;
+
+        vector_double_add(stat->read_prgv, log_add_exp(prgv, phet));//這邊放score?
+
+        /* Read count incremented only when the difference in probability is not ambiguous, > ~log(2) difference and more likely than pout */
+        if (prgv[0] > prgu[0] && prgv[0] - prgu[0] > 0.69 && prgv[0] - pout > 0.69)
+            stat->alt_count += 1;
+        else if (prgu[0] > prgv[0] && prgu[0] - prgv[0] > 0.69 && prgu[0] - pout > 0.69)
+            stat->ref_count += 1;
+
+        if (debug >= 2)
+        {
+            //fprintf(stderr, "%f\t%f\t%f\t%f\t%d\t%d\t", prgu, phet, prgv, pout, stat->ref_count, stat->alt_count);
+            fprintf(stderr, "%s\t%s\t%d\t%d\t", read_data[readi]->name, read_data[readi]->chr, read_data[readi]->pos, read_data[readi]->end);
+            for (i = 0; i < read_data[readi]->n_cigar; i++)
+                fprintf(stderr, "%d%c ", read_data[readi]->cigar_oplen[i], read_data[readi]->cigar_opchr[i]);
+            fprintf(stderr, "\t");
+            for (i = 0; i < stat->combo->len; i++)
+            {
+                variant_t *v = var_data[stat->combo->data[i]];
+                fprintf(stderr, "%s,%d,%s,%s;", v->chr, v->pos, v->ref, v->alt);
+            }
+            fprintf(stderr, "\t");
+            if (read_data[readi]->multimapXA != NULL)
+                fprintf(stderr, "%s\t", read_data[readi]->multimapXA);
+            else
+                fprintf(stderr, "%d\t", read_data[readi]->multimapNH);
+            if (read_data[readi]->flag != NULL)
+                fprintf(stderr, "%s\t", read_data[readi]->flag);
+            fprintf(stderr, "%s\t", read_data[readi]->qseq);
+            for (i = 0; i < read_data[readi]->length; i++)
+                fprintf(stderr, "%d ", read_data[readi]->qual[i]);
+            fprintf(stderr, "\n");
+        }
+    }
+    stat->mut = log_add_exp(stat->alt, stat->het);
+    free(altseq);
+    altseq = NULL;
+    if (debug >= 1)
+    {
+        fprintf(stderr, "==\t%f\t%f\t%f\t%d\t%d\t%d\t", stat->ref, stat->het, stat->alt, stat->ref_count, stat->alt_count, (int)nreads);
+        for (i = 0; i < stat->combo->len; i++)
+        {
+            variant_t *v = var_data[stat->combo->data[i]];
+            fprintf(stderr, "%s,%d,%s,%s;", v->chr, v->pos, v->ref, v->alt);
+        }
+        fprintf(stderr, "\n");
+    }
+}
+
 static char *evaluate(vector_t *var_set)
 {
     size_t i, readi, seti;
@@ -607,52 +920,59 @@ static char *evaluate(vector_t *var_set)
     }
     read_t **read_data = (read_t **)read_list->data;
 
-    /* Variant combinations as a vector of vectors */
-    vector_t *combo = powerset(var_set->len, maxh);
-    /*
-    for (seti = 0; seti < combo->len; seti++) { // Print combinations
-        fprintf(stderr, "%d\t", (int)seti); 
-        for (i = 0; i < ((vector_int_t *)combo->data[seti])->len; i++) { fprintf(stderr, "%d;", ((vector_int_t *)combo->data[seti])->data[i]); } fprintf(stderr, "\t"); 
-        for (i = 0; i < ((vector_int_t *)combo->data[seti])->len; i++) { variant_t *v = var_data[((vector_int_t *)combo->data[seti])->data[i]]; fprintf(stderr, "%s,%d,%s,%s;", v->chr, v->pos, v->ref, v->alt); } fprintf(stderr, "\n"); 
-    }
-    */
-
-    vector_t *stats = vector_create(var_set->len + 1, STATS_T);
-
-    for (seti = 0; seti < combo->len; seti++)
-    { // all, singles
+    int methylation = 1;
+    if(methylation){
+        vector_t *stats = vector_create(var_set->len + 1, STATS_T);
         stats_t *s = stats_create((vector_int_t *)combo->data[seti], read_list->len);
         vector_add(stats, s);
-        calc_likelihood(s, var_set, refseq, refseq_length, read_data, read_list->len, seti, seqnt_map);
+        calc_likelihood_bisulfite(s, var_set, refseq, refseq_length, read_data, read_list->len, readi, seqnt_map);
+        //stat store scores then using mixture model
+            
+            //calc_likelihood(s, var_set, refseq, refseq_length, read_data, read_list->len, seti, seqnt_map);
+        /*mixture model below*/
     }
-    if (var_set->len > 1)
-    { // doubles and beyond
-        heap_t *h = heap_create(STATS_T);
-        for (seti = 1; seti < combo->len; seti++)
-            heap_push(h, ((stats_t *)stats->data[seti])->mut, stats->data[seti]);
+    else{
+        /* Variant combinations as a vector of vectors */
+        vector_t *combo = powerset(var_set->len, maxh);
+        vector_t *stats = vector_create(var_set->len + 1, STATS_T);
+        vector_free(combo); //combos in stat so don't destroy
 
-        stats_t *s;
-        while (s = heap_pop(h), s != NULL)
-        {
-            if ((int)stats->len - var_set->len - 1 >= maxh)
-                break;
-
-            vector_t *c = vector_create(8, VOID_T);
-            derive_combo(c, s->combo, var_set->len);
-            for (i = 0; i < c->len; i++)
-            {
-                stats_t *s = stats_create((vector_int_t *)c->data[i], read_list->len);
-                vector_add(stats, s);
-                calc_likelihood(s, var_set, refseq, refseq_length, read_data, read_list->len, stats->len - 1, seqnt_map);
-                heap_push(h, s->mut, s);
-            }
-            vector_free(c); //combos in stat so don't destroy
+        for (seti = 0; seti < combo->len; seti++)
+        { // all, singles
+            stats_t *s = stats_create((vector_int_t *)combo->data[seti], read_list->len);
+            vector_add(stats, s);
+            calc_likelihood(s, var_set, refseq, refseq_length, read_data, read_list->len, seti, seqnt_map);
         }
-        heap_free(h);
-    }
-    vector_free(combo); //combos in stat so don't destroy
+        if (var_set->len > 1)
+        { // doubles and beyond
+            heap_t *h = heap_create(STATS_T);
+            for (seti = 1; seti < combo->len; seti++)
+                heap_push(h, ((stats_t *)stats->data[seti])->mut, stats->data[seti]);
 
-    stats_t **stat = (stats_t **)stats->data;
+            stats_t *s;
+            while (s = heap_pop(h), s != NULL)
+            {
+                if ((int)stats->len - var_set->len - 1 >= maxh)
+                    break;
+
+                vector_t *c = vector_create(8, VOID_T);
+                derive_combo(c, s->combo, var_set->len);
+                for (i = 0; i < c->len; i++)
+                {
+                    stats_t *s = stats_create((vector_int_t *)c->data[i], read_list->len);
+                    vector_add(stats, s);
+                    calc_likelihood(s, var_set, refseq, refseq_length, read_data, read_list->len, stats->len - 1, seqnt_map);
+                    heap_push(h, s->mut, s);
+                }
+                vector_free(c); //combos in stat so don't destroy
+            }
+            heap_free(h);
+        }
+        vector_free(combo); //combos in stat so don't destroy
+
+        stats_t **stat = (stats_t **)stats->data;
+    }
+    /*下面的部分要問PH?*/
 
     /* Heterozygous non-reference haplotypes as mixture model hypotheses */
     int c[stats->len];
@@ -882,7 +1202,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
             }
             i = j;
             vector_add(var_set, curr);
-        }//依據bam_fetch_last將variants分段放入var_set<--------------------------------------------------------------
+        }
     }
     else if (sharedr == 2)
     { /* Variants that share a read: shared with any neighboring variant */
@@ -1256,14 +1576,28 @@ int main(int argc, char **argv)
     clock_t tic = clock();
     vector_t *var_list = vcf_read(vcf_fh);
     print_status("# Read VCF: %s\t%i entries\t%s", vcf_file, (int)var_list->len, asctime(time_info));
+    //len is 4 for test data
     /*---------*/
-    //C read from ref-genome, input C to A
-    int position=0, cur=0;
-    while (position < 100)//read->length
-    {
-        if(var_list->data[cur])
-        ++position;
+    fasta_t *f = refseq_fetch(var_list[0]->chr, fa_file);
+    variant_t *v;
+    if (f == NULL)
+        return NULL;
+    char *refseq = f->seq;
+    int refseq_length = f->seq_length;
+    int count;
+    char *tmp = strdup(variant_t(var_list[0]->chr));
+    for(count = 0; count<refseq_length; ++count){
+        if(refseq[count]=='C'){
+            v->alt = 'T';
+            v->ref = 'C';
+            v->pos = count;
+            v->chr = tmp;
+            //variant_t *v = variant_create(tmp, count, 'C', 'T');
+            vector_add(var_list, v);
+        }
     }
+    qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
+    
     /*---------*/
 
 
