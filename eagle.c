@@ -598,7 +598,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
 
     int has_indel = 0;
 
-    /*------Z of CpG---------*/
+    /*------Z without CpG---------*/
     char *new_refseq = strdup(refseq);
     if(new_refseq[0] == 'C' && new_refseq[1] != 'G')new_refseq[0] = 'Z';
     int counter;
@@ -726,7 +726,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         double readprobmatrix[NT_CODES * read_data[readi]->length], readprobmatrix2[NT_CODES * read_data[readi]->length];
         //set_prob_matrix(readprobmatrix, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
         set_prob_matrix_bisulfite(readprobmatrix, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
-        bisulfite_set_prob_matrix2(readprobmatrix2, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
+        set_prob_matrix_bisulfite2(readprobmatrix2, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
 
         /* Outside Paralog Exact Formuation: Probability that read is from an outside the reference paralogous "elsewhere", f in F.  Approximate the bulk of probability distribution P(r|f):
            a) perfect match = prod[ (1-e) ]
