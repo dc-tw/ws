@@ -701,11 +701,13 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
     /* Aligned reads */
     for (readi = 0; readi < nreads; readi++)
     {
-        if (read_data[readi]->pos > var_data[stat->combo->data[0]]->pos || read_data[readi]->end < var_data[stat->combo->data[stat->combo->len - 1]]->pos)
+        /*if (read_data[readi]->pos > var_data[stat->combo->data[0]]->pos || 
+            read_data[readi]->end < var_data[stat->combo->data[stat->combo->len - 1]]->pos)
         { // read must cross all variants in current combo
             vector_double_add(stat->read_prgv, -DBL_MAX);
             continue; // read must cross all variants in current combo
-        }
+        }*/
+        vector_double_add(stat->read_prgv, -DBL_MAX);
         stat->seen++;
 
         double is_match[read_data[readi]->length], no_match[read_data[readi]->length];
@@ -863,11 +865,11 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
             for (i = 0; i < read_data[readi]->n_cigar; i++)
                 fprintf(stderr, "%d%c ", read_data[readi]->cigar_oplen[i], read_data[readi]->cigar_opchr[i]);
             fprintf(stderr, "\t");
-            for (i = 0; i < stat->combo->len; i++)
+            /*for (i = 0; i < stat->combo->len; i++)
             {
                 variant_t *v = var_data[stat->combo->data[i]];
                 fprintf(stderr, "%s,%d,%s,%s;", v->chr, v->pos, v->ref, v->alt);
-            }
+            }*/
             fprintf(stderr, "\t");
             if (read_data[readi]->multimapXA != NULL)
                 fprintf(stderr, "%s\t", read_data[readi]->multimapXA);
@@ -882,16 +884,16 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         }
     }
     stat->mut = log_add_exp(stat->alt, stat->het);
-    free(altseq);
-    altseq = NULL;
+    free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
+    //altseq = NULL;
     if (debug >= 1)
     {
         fprintf(stderr, "==\t%f\t%f\t%f\t%d\t%d\t%d\t", stat->ref, stat->het, stat->alt, stat->ref_count, stat->alt_count, (int)nreads);
-        for (i = 0; i < stat->combo->len; i++)
+        /*for (i = 0; i < stat->combo->len; i++)
         {
             variant_t *v = var_data[stat->combo->data[i]];
             fprintf(stderr, "%s,%d,%s,%s;", v->chr, v->pos, v->ref, v->alt);
-        }
+        }*/
         fprintf(stderr, "\n");
     }
 }
@@ -975,7 +977,7 @@ static char *evaluate(vector_t *var_set)
     /*下面的部分要問PH?*/
 
     /* Heterozygous non-reference haplotypes as mixture model hypotheses */
-    int c[stats->len];
+    int c[read_list->len];//int c[stats->len];
     memset(c, 0, sizeof(c));
     for (readi = 0; readi < read_list->len; readi++)
         c[read_data[readi]->index]++; // combinations, based on best combination in each read
@@ -1578,14 +1580,14 @@ int main(int argc, char **argv)
     print_status("# Read VCF: %s\t%i entries\t%s", vcf_file, (int)var_list->len, asctime(time_info));
     //len is 4 for test data
     /*---------*/
-    fasta_t *f = refseq_fetch(var_list[0]->chr, fa_file);
+    fasta_t *f = refseq_fetch(variant_t(var_list[0])->chr, fa_file);
     variant_t *v;
     if (f == NULL)
         return NULL;
     char *refseq = f->seq;
     int refseq_length = f->seq_length;
     int count;
-    char *tmp = strdup(variant_t(var_list[0]->chr));
+    char *tmp = strdup(variant_t(var_list[0])->chr);
     for(count = 0; count<refseq_length; ++count){
         if(refseq[count]=='C'){
             v->alt = 'T';
