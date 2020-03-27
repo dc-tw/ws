@@ -799,8 +799,8 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
 
                     xa_pos = abs(xa_pos);
                     double readprobability = calc_prob(p_readprobmatrix, read_data[readi]->length, xa_refseq, xa_refseq_length, xa_pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map);
-                    prgu = log_add_exp(prgu, readprobability);
-                    prgv = log_add_exp(prgv, readprobability);
+                    prgu[0] = log_add_exp(prgu[0], readprobability);
+                    prgv[0] = log_add_exp(prgv[0], readprobability);
                     free(newreadprobmatrix);
                     newreadprobmatrix = NULL;
                 }
@@ -813,52 +813,52 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
             double n = log(read_data[readi]->multimapNH - 1);
             double readprobability = prgu + n;
             pout = log_add_exp(pout, elsewhere + n);
-            prgu = log_add_exp(prgu, readprobability);
-            prgv = log_add_exp(prgv, readprobability);
+            prgu[0] = log_add_exp(prgu[0], readprobability);
+            prgv[0] = log_add_exp(prgv[0], readprobability);
         }
 
         /* Mixture model: probability that the read is from elsewhere, outside paralogous source */
         pout += lgomega;
-        prgu = log_add_exp(pout, prgu);
-        prgv = log_add_exp(pout, prgv);
+        prgu[0] = log_add_exp(pout, prgu[0]);
+        prgv[0] = log_add_exp(pout, prgv[0]);
 
         /* Track combination with highest variant likelihood */
         if (prgv > read_data[readi]->prgv)
         {
             read_data[readi]->index = seti;
-            read_data[readi]->prgu = (float)prgu;
-            read_data[readi]->prgv = (float)prgv;
+            read_data[readi]->prgu = (float)prgu[0];
+            read_data[readi]->prgv = (float)prgv[0];
             read_data[readi]->pout = (float)pout;
         }
 
         /* Mixture model: heterozygosity or heterogeneity as explicit allele frequency mu such that P(r|GuGv) = (mu)(P(r|Gv)) + (1-mu)(P(r|Gu)) */
-        double phet = log_add_exp(LOG50 + prgv, LOG50 + prgu);
-        double phet10 = log_add_exp(LOG10 + prgv, LOG90 + prgu);
-        double phet90 = log_add_exp(LOG90 + prgv, LOG10 + prgu);
+        double phet = log_add_exp(LOG50 + prgv[0], LOG50 + prgu[0]);
+        double phet10 = log_add_exp(LOG10 + prgv[0], LOG90 + prgu[0]);
+        double phet90 = log_add_exp(LOG90 + prgv[0], LOG10 + prgu[0]);
         if (phet10 > phet)
             phet = phet10;
         if (phet90 > phet)
             phet = phet90;
 
         /* Priors */
-        prgu += ref_prior;
-        prgv += alt_prior - log_nv;
+        prgu[0] += ref_prior;
+        prgv[0] += alt_prior - log_nv;
         phet += het_prior - log_nv;
-        stat->ref += prgu;
-        stat->alt += prgv;
+        stat->ref += prgu[0];
+        stat->alt += prgv[0];
         stat->het += phet;
 
         vector_double_add(stat->read_prgv, log_add_exp(prgv, phet));//這邊放score?
 
         /* Read count incremented only when the difference in probability is not ambiguous, > ~log(2) difference and more likely than pout */
-        if (prgv > prgu && prgv - prgu > 0.69 && prgv - pout > 0.69)
+        if (prgv[0] > prgu[0] && prgv[0] - prgu[0] > 0.69 && prgv[0] - pout > 0.69)
             stat->alt_count += 1;
-        else if (prgu > prgv && prgu - prgv > 0.69 && prgu - pout > 0.69)
+        else if (prgu[0] > prgv[0] && prgu[0] - prgv[0] > 0.69 && prgu[0] - pout > 0.69)
             stat->ref_count += 1;
 
         if (debug >= 2)
         {
-            fprintf(stderr, "%f\t%f\t%f\t%f\t%d\t%d\t", prgu, phet, prgv, pout, stat->ref_count, stat->alt_count);
+            //fprintf(stderr, "%f\t%f\t%f\t%f\t%d\t%d\t", prgu, phet, prgv, pout, stat->ref_count, stat->alt_count);
             fprintf(stderr, "%s\t%s\t%d\t%d\t", read_data[readi]->name, read_data[readi]->chr, read_data[readi]->pos, read_data[readi]->end);
             for (i = 0; i < read_data[readi]->n_cigar; i++)
                 fprintf(stderr, "%d%c ", read_data[readi]->cigar_oplen[i], read_data[readi]->cigar_opchr[i]);
