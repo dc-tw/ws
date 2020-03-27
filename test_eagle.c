@@ -615,7 +615,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
     if(new_refseq[refseq_length-1] == 'C' && new_refseq[refseq_length-2] != 'G')new_refseq[refseq_length-1] = 'Z';
     
     /*----four hypothesis----*/
-    char *new_refseq1 = strdup(new_refseq), *new_refseq2 = strdup(refseq), *new_refseq3 = strdup(refseq);
+    char *new_refseq1 = strdup(new_refseq), *new_refseq2 = strdup(refseq), *new_refseq3 = strdup(refseq), *new_refseq4;
     for(counter = 1; counter<refseq_length; counter++){
         if (new_refseq2[counter] == 'C')
         {
@@ -633,7 +633,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         left++;
         right--;
     }
-    char *new_refseq4 = strdup(new_refseq3);
+    *new_refseq4 = strdup(new_refseq3);
     for(counter=0; counter<refseq_length; ++counter){
         switch (new_refseq3[counter])
         {
@@ -753,8 +753,8 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         prgv1[2] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
         prgv1[3] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
 
-        //alt stand for general or modified
-        //use matrix2 for other strand
+        //alt stand for general(0) or modified(1)
+        //use readprobmatrix2 for other strand
         prgu2[0] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
                         read_data[readi]->n_splice, seqnt_map, 0);
