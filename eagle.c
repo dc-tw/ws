@@ -973,13 +973,7 @@ static char *evaluate(vector_t *var_set)
         vector_free(combo); //combos in stat so don't destroy
 
         stats_t **stat = (stats_t **)stats->data;
-    }
-    /*下面的部分要問PH?*/
-
-    if(methylation){
-
-    }
-    else{
+    
         /* Heterozygous non-reference haplotypes as mixture model hypotheses */
         int c[read_list->len];//int c[stats->len];
         memset(c, 0, sizeof(c));
