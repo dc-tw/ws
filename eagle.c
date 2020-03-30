@@ -813,7 +813,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         else if (read_data[readi]->multimapNH > 1)
         { // scale by the number of multimap positions
             double n = log(read_data[readi]->multimapNH - 1);
-            double readprobability = prgu + n;
+            double readprobability = prgu1[0] + n;
             pout = log_add_exp(pout, elsewhere + n);
             prgu1[0] = log_add_exp(prgu1[0], readprobability);
             prgv1[0] = log_add_exp(prgv1[0], readprobability);
@@ -925,7 +925,7 @@ static char *evaluate(vector_t *var_set)
     int methylation = 1;
     if(methylation){
         vector_t *stats = vector_create(var_set->len + 1, STATS_T);
-        stats_t *s = stats_create((vector_int_t *)combo->data[seti], read_list->len);
+        stats_t *s = stats_create((vector_int_t *)var_set->data[seti], read_list->len);
         vector_add(stats, s);
         calc_likelihood_bisulfite(s, var_set, refseq, refseq_length, read_data, read_list->len, readi, seqnt_map);
         //stat store scores then using mixture model
@@ -976,40 +976,45 @@ static char *evaluate(vector_t *var_set)
     }
     /*下面的部分要問PH?*/
 
-    /* Heterozygous non-reference haplotypes as mixture model hypotheses */
-    int c[read_list->len];//int c[stats->len];
-    memset(c, 0, sizeof(c));
-    for (readi = 0; readi < read_list->len; readi++)
-        c[read_data[readi]->index]++; // combinations, based on best combination in each read
+    if(methylation){
 
-    vector_int_t *haplotypes = vector_int_create(stats->len);
-    for (i = 0; i < stats->len; i++)
-    {
-        if ((double)c[i] / (double)read_list->len >= 0.1)
-            vector_int_add(haplotypes, i); // relevant combination if read count >= 10% of reads seen
     }
-    combo = vector_create(haplotypes->len, VOID_T);
-    if (haplotypes->len > 1)
-        combinations(combo, 2, haplotypes->len); // combination pairs
-
-    vector_double_t *prhap = vector_double_create(combo->len);
-    for (seti = 0; seti < combo->len; seti++)
-    { // mixture model probabilities of combination pairs
-        int x = haplotypes->data[((vector_int_t *)combo->data[seti])->data[0]];
-        int y = haplotypes->data[((vector_int_t *)combo->data[seti])->data[1]];
-        vector_double_add(prhap, 0);
+    else{
+        /* Heterozygous non-reference haplotypes as mixture model hypotheses */
+        int c[read_list->len];//int c[stats->len];
+        memset(c, 0, sizeof(c));
         for (readi = 0; readi < read_list->len; readi++)
+            c[read_data[readi]->index]++; // combinations, based on best combination in each read
+
+        vector_int_t *haplotypes = vector_int_create(stats->len);
+        for (i = 0; i < stats->len; i++)
         {
-            if (stat[x]->read_prgv->data[readi] == -DBL_MAX && stat[y]->read_prgv->data[readi] == -DBL_MAX)
-                continue;
-            double phet = log_add_exp(LOG50 + stat[x]->read_prgv->data[readi], LOG50 + stat[y]->read_prgv->data[readi]);
-            double phet10 = log_add_exp(LOG10 + stat[x]->read_prgv->data[readi], LOG90 + stat[y]->read_prgv->data[readi]);
-            double phet90 = log_add_exp(LOG90 + stat[x]->read_prgv->data[readi], LOG10 + stat[y]->read_prgv->data[readi]);
-            if (phet10 > phet)
-                phet = phet10;
-            if (phet90 > phet)
-                phet = phet90;
-            prhap->data[seti] += phet; // equal prior probability to ref since this assumes heterozygous non-reference variant
+            if ((double)c[i] / (double)read_list->len >= 0.1)
+                vector_int_add(haplotypes, i); // relevant combination if read count >= 10% of reads seen
+        }
+        combo = vector_create(haplotypes->len, VOID_T);
+        if (haplotypes->len > 1)
+            combinations(combo, 2, haplotypes->len); // combination pairs
+
+        vector_double_t *prhap = vector_double_create(combo->len);
+        for (seti = 0; seti < combo->len; seti++)
+        { // mixture model probabilities of combination pairs
+            int x = haplotypes->data[((vector_int_t *)combo->data[seti])->data[0]];
+            int y = haplotypes->data[((vector_int_t *)combo->data[seti])->data[1]];
+            vector_double_add(prhap, 0);
+            for (readi = 0; readi < read_list->len; readi++)
+            {
+                if (stat[x]->read_prgv->data[readi] == -DBL_MAX && stat[y]->read_prgv->data[readi] == -DBL_MAX)
+                    continue;
+                double phet = log_add_exp(LOG50 + stat[x]->read_prgv->data[readi], LOG50 + stat[y]->read_prgv->data[readi]);
+                double phet10 = log_add_exp(LOG10 + stat[x]->read_prgv->data[readi], LOG90 + stat[y]->read_prgv->data[readi]);
+                double phet90 = log_add_exp(LOG90 + stat[x]->read_prgv->data[readi], LOG10 + stat[y]->read_prgv->data[readi]);
+                if (phet10 > phet)
+                    phet = phet10;
+                if (phet90 > phet)
+                    phet = phet90;
+                prhap->data[seti] += phet; // equal prior probability to ref since this assumes heterozygous non-reference variant
+            }
         }
     }
     if (debug >= 1)
