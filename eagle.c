@@ -1580,7 +1580,7 @@ int main(int argc, char **argv)
     print_status("# Read VCF: %s\t%i entries\t%s", vcf_file, (int)var_list->len, asctime(time_info));
     //len is 4 for test data
     /*---------*/
-    variant_t **var_data = (variant_t **)var_set->data;
+    variant_t **var_data = (variant_t **)var_list->data;
     fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
     variant_t *v;
     if (f == NULL)
