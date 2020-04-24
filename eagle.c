@@ -919,8 +919,8 @@ static char *evaluate(vector_t *var_set)
     variant_t **var_data = (variant_t **)var_set->data;
 
     /* Reference sequence */
-    fasta_t *f = refseq_fetch("chrM", fa_file);
-    //fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
+    //fasta_t *f = refseq_fetch("chrM", fa_file);
+    fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
     print_status("end ref fetch\n");
     if (f == NULL)
         return NULL;
