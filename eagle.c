@@ -1583,20 +1583,20 @@ int main(int argc, char **argv)
     /*---------*/
     variant_t **var_data = (variant_t **)var_list->data;
     fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
-    variant_t *v;
+    //variant_t *v;
     if (f == NULL)
         return NULL;
     char *refseq = f->seq;
     int refseq_length = f->seq_length;
     int count;
-    char *tmp = strdup(var_data[0]->chr);
+    char tmp[] = "chrM";
     for(count = 0; count<refseq_length; ++count){
         if(refseq[count]=='C'){
-            v->alt = 'T';
-            v->ref = 'C';
-            v->pos = count;
-            v->chr = tmp;
-            //variant_t *v = variant_create(tmp, count, 'C', 'T');
+            //v->alt = 'T';
+            //v->ref = 'C';
+            //v->pos = count;
+            //v->chr = tmp;
+            variant_t *v = variant_create(tmp, count, 'C', 'T');
             vector_add(var_list, v);
         }
     }
