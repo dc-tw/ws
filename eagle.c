@@ -1592,8 +1592,8 @@ int main(int argc, char **argv)
     variant_t **var_data = (variant_t **)var_list->data;
     print_status("picking C1\n");
     char tmp[] = "chrM";
-    fasta_t *f = refseq_fetch(tmp, fa_file);
-    //fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
+    //fasta_t *f = refseq_fetch(tmp, fa_file);
+    fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
     print_status("picking C2\n");
     //variant_t *v;
     if (f == NULL)
