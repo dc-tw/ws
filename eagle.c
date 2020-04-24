@@ -919,7 +919,8 @@ static char *evaluate(vector_t *var_set)
     variant_t **var_data = (variant_t **)var_set->data;
 
     /* Reference sequence */
-    fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
+    fasta_t *f = refseq_fetch("chrM", fa_file);
+    //fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
     print_status("end ref fetch\n");
     if (f == NULL)
         return NULL;
@@ -1204,7 +1205,6 @@ static void process(const vector_t *var_list, FILE *out_fh)
     print_status("start picking C\n");
     //variant_t **var_data = (variant_t **)var_list->data;
     char tmp[] = "chrM";
-    //fasta_t *f = refseq_fetch(tmp, fa_file);
     fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
     //variant_t *v;
     if (f == NULL)
