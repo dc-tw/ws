@@ -598,6 +598,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
 
     int has_indel = 0;
 
+    print_status("constructing 4 hypothesis\n");
     /*------Z without CpG---------*/
     char *new_refseq = strdup(refseq);
     if(new_refseq[0] == 'C' && new_refseq[1] != 'G')new_refseq[0] = 'Z';
@@ -739,6 +740,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         double a = sum_d(is_match, read_data[readi]->length);
         double elsewhere = log_add_exp(a, a + log_sum_exp(delta, read_data[readi]->length)) - (LGALPHA * (read_data[readi]->length - read_data[readi]->inferred_length));
 
+        print_status("starting calculate %d\n", readi);
         double prgu1[4], prgv1[4], prgu2[4], prgv2[4];
         /*---------------------*/
         prgu1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
@@ -923,6 +925,7 @@ static char *evaluate(vector_t *var_set)
     read_t **read_data = (read_t **)read_list->data;
 
     int methylation = 1;
+    print_status("goto methylation\n");
     if(methylation){
         vector_t *stats = vector_create(var_set->len + 1, STATS_T);
         stats_t *s = stats_create((vector_int_t *)var_set->data[seti], read_list->len);
@@ -1581,12 +1584,16 @@ int main(int argc, char **argv)
     print_status("# Read VCF: %s\t%i entries\t%s", vcf_file, (int)var_list->len, asctime(time_info));
     //len is 4 for test data
     /*---------*/
+    print_status("picking C0\n");
     variant_t **var_data = (variant_t **)var_list->data;
+    print_status("picking C1\n");
     fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
+    print_status("picking C2\n");
     //variant_t *v;
     if (f == NULL)
         return NULL;
     char *refseq = f->seq;
+    print_status("pciking C3\n");
     int refseq_length = f->seq_length;
     int count;
     char tmp[] = "chrM";
@@ -1600,8 +1607,9 @@ int main(int argc, char **argv)
             vector_add(var_list, v);
         }
     }
+    print_status("picking C4\n");
     qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
-    
+    print_status("picking C5\n");
     /*---------*/
 
 
