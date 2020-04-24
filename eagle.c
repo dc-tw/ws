@@ -920,6 +920,7 @@ static char *evaluate(vector_t *var_set)
 
     /* Reference sequence */
     fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
+    print_status("end ref fetch\n");
     if (f == NULL)
         return NULL;
     char *refseq = f->seq;
