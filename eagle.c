@@ -205,6 +205,7 @@ static fasta_t *refseq_fetch(char *name, const char *fa_file)
 {
     print_status("refseq init\n");
     pthread_mutex_lock(&refseq_lock);
+    print_status("kh get\n");
     khiter_t k = kh_get(rsh, refseq_hash, name);
     if (k != kh_end(refseq_hash))
     {
