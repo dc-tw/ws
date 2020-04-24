@@ -919,8 +919,8 @@ static char *evaluate(vector_t *var_set)
     variant_t **var_data = (variant_t **)var_set->data;
 
     /* Reference sequence */
-    //fasta_t *f = refseq_fetch("chrM", fa_file);
-    fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
+    fasta_t *f = refseq_fetch("chrM", fa_file);
+    //fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
     print_status("end ref fetch\n");
     if (f == NULL)
         return NULL;
@@ -929,6 +929,7 @@ static char *evaluate(vector_t *var_set)
 
     /* Reads in variant region coordinates */
     vector_t *read_list = bam_fetch(bam_file, var_data[0]->chr, var_data[0]->pos, var_data[var_set->len - 1]->pos);
+    print_status("end bam fetch\n");
     if (read_list->len == 0)
     {
         vector_destroy(read_list);
