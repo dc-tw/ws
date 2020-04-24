@@ -1587,16 +1587,18 @@ int main(int argc, char **argv)
     print_status("picking C0\n");
     variant_t **var_data = (variant_t **)var_list->data;
     print_status("picking C1\n");
-    fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
+    char tmp[] = "chrM";
+    fasta_t *f = refseq_fetch(tmp, fa_file);
+    //fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
     print_status("picking C2\n");
     //variant_t *v;
     if (f == NULL)
         return NULL;
     char *refseq = f->seq;
-    print_status("pciking C3\n");
+    print_status("picking C3\n");
     int refseq_length = f->seq_length;
     int count;
-    char tmp[] = "chrM";
+    //char tmp[] = "chrM";
     for(count = 0; count<refseq_length; ++count){
         if(refseq[count]=='C'){
             //v->alt = 'T';
