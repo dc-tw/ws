@@ -229,6 +229,7 @@ static fasta_t *refseq_fetch(char *name, const char *fa_file)
         exit_err("failed to find %s in reference %s\n", name, fa_file);
     }
 
+    print_status("create *f\n");
     fasta_t *f = fasta_create(name);
     //f->seq = fai_fetch(fai, f->name, &f->seq_length);
     f->seq = faidx_fetch_seq(fai, f->name, 0, faidx_seq_len(fai, f->name) - 1, &f->seq_length);
