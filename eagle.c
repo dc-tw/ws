@@ -1596,7 +1596,7 @@ int main(int argc, char **argv)
             //v->ref = 'C';
             //v->pos = count;
             //v->chr = tmp;
-            variant_t *v = variant_create(tmp, count, 'C', 'T');
+            variant_t *v = variant_create(tmp, count, "C", "T");
             vector_add(var_list, v);
         }
     }
