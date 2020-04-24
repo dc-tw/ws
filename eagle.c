@@ -913,6 +913,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
 
 static char *evaluate(vector_t *var_set)
 {
+    print_status("start evaluate\n");
     size_t i, readi, seti;
 
     variant_t **var_data = (variant_t **)var_set->data;
@@ -1164,6 +1165,7 @@ typedef struct
 
 static void *pool(void *work)
 {
+    print_status("start pooling\n");
     work_t *w = (work_t *)work;
 
     size_t n = w->len / 10;
@@ -1198,35 +1200,25 @@ static void process(const vector_t *var_list, FILE *out_fh)
     variant_t **var_data = (variant_t **)var_list->data;
 
     /*---------*/
-    print_status("picking C0\n");
+    print_status("start picking C\n");
     //variant_t **var_data = (variant_t **)var_list->data;
-    print_status("picking C1\n");
     char tmp[] = "chrM";
     //fasta_t *f = refseq_fetch(tmp, fa_file);
-    print_status("%s\n", var_data[0]->chr);
     fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
-    print_status("picking C2\n");
     //variant_t *v;
     if (f == NULL)
         return NULL;
     char *refseq = f->seq;
-    print_status("picking C3\n");
     int refseq_length = f->seq_length;
     int count;
     //char tmp[] = "chrM";
     for(count = 0; count<refseq_length; ++count){
         if(refseq[count]=='C'){
-            //v->alt = 'T';
-            //v->ref = 'C';
-            //v->pos = count;
-            //v->chr = tmp;
             variant_t *v = variant_create(tmp, count, "C", "T");
             vector_add(var_list, v);
         }
     }
-    print_status("picking C4\n");
     qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
-    print_status("picking C5\n");
     /*---------*/
 
     i = 0;
@@ -1626,37 +1618,7 @@ int main(int argc, char **argv)
     vector_t *var_list = vcf_read(vcf_fh);
     print_status("# Read VCF: %s\t%i entries\t%s", vcf_file, (int)var_list->len, asctime(time_info));
 
-    /*---------*/
-    /*print_status("picking C0\n");
-    variant_t **var_data = (variant_t **)var_list->data;
-    print_status("picking C1\n");
-    char tmp[] = "chrM";
-    //fasta_t *f = refseq_fetch(tmp, fa_file);
-    print_status("%s\n", var_data[0]->chr);
-    fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
-    print_status("picking C2\n");
-    //variant_t *v;
-    if (f == NULL)
-        return NULL;
-    char *refseq = f->seq;
-    print_status("picking C3\n");
-    int refseq_length = f->seq_length;
-    int count;
-    //char tmp[] = "chrM";
-    for(count = 0; count<refseq_length; ++count){
-        if(refseq[count]=='C'){
-            //v->alt = 'T';
-            //v->ref = 'C';
-            //v->pos = count;
-            //v->chr = tmp;
-            variant_t *v = variant_create(tmp, count, "C", "T");
-            vector_add(var_list, v);
-        }
-    }
-    print_status("picking C4\n");
-    qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
-    print_status("picking C5\n");*/
-    /*---------*/
+    
 
 
     refseq_hash = kh_init(rsh);
