@@ -1590,7 +1590,7 @@ int main(int argc, char **argv)
     print_status("# Read VCF: %s\t%i entries\t%s", vcf_file, (int)var_list->len, asctime(time_info));
     //len is 4 for test data
     /*---------*/
-    print_status("picking C0\n");
+    /*print_status("picking C0\n");
     variant_t **var_data = (variant_t **)var_list->data;
     print_status("picking C1\n");
     char tmp[] = "chrM";
@@ -1618,7 +1618,7 @@ int main(int argc, char **argv)
     }
     print_status("picking C4\n");
     qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
-    print_status("picking C5\n");
+    print_status("picking C5\n");*/
     /*---------*/
 
 
