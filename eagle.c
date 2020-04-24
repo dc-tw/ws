@@ -163,10 +163,13 @@ static int bam_fetch_last(const char *bam_file, const char *chr, const int pos1,
 
 static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1, const int pos2)
 {
+    print_status("start bam fetch\n");
     /* Reads in region coordinates */
     vector_t *read_list = vector_create(64, READ_T);
 
+    print_status("open sam\n");
     samFile *sam_in = sam_open(bam_file, "r"); // open bam file
+    print_status("open sam complete\n");
     if (sam_in == NULL)
     {
         exit_err("failed to open BAM file %s\n", bam_file);
@@ -928,8 +931,7 @@ static char *evaluate(vector_t *var_set)
     int refseq_length = f->seq_length;
 
     /* Reads in variant region coordinates */
-    vector_t *read_list = bam_fetch(bam_file, "chrM", var_data[0]->pos, var_data[var_set->len - 1]->pos);
-    //vector_t *read_list = bam_fetch(bam_file, var_data[0]->chr, var_data[0]->pos, var_data[var_set->len - 1]->pos);
+    vector_t *read_list = bam_fetch(bam_file, var_data[0]->chr, var_data[0]->pos, var_data[var_set->len - 1]->pos);
     print_status("end bam fetch\n");
     if (read_list->len == 0)
     {
