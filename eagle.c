@@ -203,6 +203,7 @@ static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1
 
 static fasta_t *refseq_fetch(char *name, const char *fa_file)
 {
+    print_status("refseq init\n");
     pthread_mutex_lock(&refseq_lock);
     khiter_t k = kh_get(rsh, refseq_hash, name);
     if (k != kh_end(refseq_hash))
@@ -211,6 +212,7 @@ static fasta_t *refseq_fetch(char *name, const char *fa_file)
         return kh_val(refseq_hash, k);
     }
 
+    print_status("fa_load\n");
     faidx_t *fai = fai_load(fa_file);
     if (fai == NULL)
     {
