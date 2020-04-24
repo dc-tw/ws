@@ -8,6 +8,7 @@ This program is distributed under the terms of the GNU General Public License
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 #include <float.h>
 #include <math.h>
@@ -1593,6 +1594,7 @@ int main(int argc, char **argv)
     print_status("picking C1\n");
     char tmp[] = "chrM";
     //fasta_t *f = refseq_fetch(tmp, fa_file);
+    print_status("%s\n", var_data[0]->chr);
     fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
     print_status("picking C2\n");
     //variant_t *v;
