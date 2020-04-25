@@ -14,6 +14,8 @@ This program is distributed under the terms of the GNU General Public License
 #include <math.h>
 #include "calc.h"
 #include "heap.h"
+
+#include "vector.h"
 /*-------------------------------------*/
 #include <time.h>
 static time_t now;
@@ -258,7 +260,7 @@ void set_prob_matrix_bisulfite2(double *matrix, const read_t *read, const double
     }
 }
 /*---------------------------------------------------------------------------------------*/
-double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length, const char *seq, int seq_length, 
+double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, 
                                 int pos, int *seqnt_map, int alt) {
     int i; // array[width * row + col] = value
     int end = (pos + read_length < seq_length) ? pos + read_length : seq_length;
@@ -282,17 +284,18 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
     }
     
     if(alt == 1){//altseq
+        variant_t **var_data = (variant_t **)var_set->data;
         print_status("alt = 1\n");
         double priority = 0;//priority = score
         bisulfite_heap_t *h = bisulfite_heap_create(STATS_T);
         int t;
         print_status("constructing B-heap\n");
-        for (t = 0; t < sizeof(var_list)/sizeof(var_list[0]); t++)
+        for (t = 0; t < var_set->len; t++)
         {//chr pos ref alt
             print_status("get in ");
-            variant_t* v = var_list[t];
+            variant_t* v = var_data[t];
             print_status("%d \n", t);
-            print_status("%d", (int)var_list[t]->pos);
+            print_status("%d", (int)var_data[t]->pos);
             print_status("%d  %d\n", pos, end);
             if(v->pos<pos && v->pos>end)continue;
             //node = bisulfite_heap_create(bisulfite_heap_t);//bisulfite_heap node();
@@ -321,7 +324,7 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
     return sum_d(probability, end - pos);
 }
 
-double calc_prob_region_bisulfite(char* var_list, double *matrix, int read_length, const char *seq, int seq_length, 
+double calc_prob_region_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, 
                                     int pos, int start, int end, int *seqnt_map, int alt) {
     //這一層是所有起點
     if (start < 0) start = 0;
@@ -333,7 +336,7 @@ double calc_prob_region_bisulfite(char* var_list, double *matrix, int read_lengt
     double p[end - start];
     double max = 0;
     for (i = start; i < end; i++) {//for each start position, do the calculation in lower floor
-        p[i - start] = calc_read_prob_bisulfite(var_list, matrix, read_length, seq, seq_length, i, seqnt_map, alt);
+        p[i - start] = calc_read_prob_bisulfite(var_set, matrix, read_length, seq, seq_length, i, seqnt_map, alt);
         if(max < p[i - start])max = p[i - start];
     }
     return max;
@@ -344,7 +347,7 @@ double calc_prob_region_bisulfite(char* var_list, double *matrix, int read_lengt
 /*calc_prob_bisulfite(readprobmatrix, read_data[readi]->length, refseq, refseq_length, 
 read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);*/
 //這層處理splice
-double calc_prob_bisulfite(char* var_list, double *matrix, int read_length, const char *seq, int seq_length, 
+double calc_prob_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, 
                             int pos, int *splice_pos, int *splice_offset, int n_splice, 
                             int *seqnt_map, int alt) {
     /* Get the sequence g in G and its neighborhood (half a read length flanking regions) */
@@ -354,7 +357,7 @@ double calc_prob_bisulfite(char* var_list, double *matrix, int read_length, cons
     int i, j;
     double probability = 0;
     if (n_splice == 0) {
-        probability = calc_prob_region_bisulfite(var_list, matrix, read_length, seq, seq_length, pos, start, end, seqnt_map, alt);
+        probability = calc_prob_region_bisulfite(var_set, matrix, read_length, seq, seq_length, pos, start, end, seqnt_map, alt);
     }
     else { // calculate the probability for each splice section separately
         int r_pos = 0;
@@ -367,7 +370,7 @@ double calc_prob_bisulfite(char* var_list, double *matrix, int read_length, cons
 
             double *submatrix = malloc(NT_CODES * r_len * sizeof (double));
             for (j = 0; j < NT_CODES; j++) memcpy(&submatrix[r_len * j], &matrix[read_length * j + r_pos], r_len * sizeof (double));
-            probability += calc_prob_region_bisulfite(var_list, submatrix, r_len, seq, seq_length, g_pos, start, end, seqnt_map, alt);
+            probability += calc_prob_region_bisulfite(var_set, submatrix, r_len, seq, seq_length, g_pos, start, end, seqnt_map, alt);
             //maybe we should use greedy
             free(submatrix); submatrix = NULL;
 
