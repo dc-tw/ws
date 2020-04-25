@@ -1207,7 +1207,7 @@ static void *pool(void *work)
             print_status("vector add\n");
             vector_add(w->results, outstr);
             print_status("vector add complete\n");
-            print_status("remain = %d\n", (vector_t *)vector_pop(w->queue)->len);
+            //print_status("remain = %d\n", (w->queue)->len);
             pthread_mutex_unlock(&w->r_lock);
         }
         vector_free(var_set); //variants in var_list so don't destroy
