@@ -932,7 +932,7 @@ static char *evaluate(vector_t *var_set)
     print_status("refseq length\n");
 
     /* Reads in variant region coordinates */
-    print_status("var_set->len = %d   %s   %d   %d\n", var_set->len, var_data[0]->chr, var_data[0]->pos, var_data[var_set->len - 1]->pos);
+    print_status("var_set->len = %d   %s   %d   %d\n", 1, var_data[0]->chr, 1, 1);
     vector_t *read_list = bam_fetch(bam_file, var_data[0]->chr, var_data[0]->pos, var_data[var_set->len - 1]->pos);
     print_status("end bam fetch\n");
     if (read_list->len == 0)
