@@ -932,7 +932,7 @@ static char *evaluate(vector_t *var_set)
     print_status("refseq length\n");
 
     /* Reads in variant region coordinates */
-    print_status("var_set->len = %d\n", var_set->len);
+    print_status("var_set->len = %d   %s   %d   %d\n", var_set->len, var_data[0]->chr, var_data[0]->pos, var_data[var_set->len - 1]->pos);
     vector_t *read_list = bam_fetch(bam_file, var_data[0]->chr, var_data[0]->pos, var_data[var_set->len - 1]->pos);
     print_status("end bam fetch\n");
     if (read_list->len == 0)
@@ -1227,7 +1227,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     }
     qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
     /*---------*/
-    print_status("var_list->len = %d", var_list->len);
+    print_status("new var_list->len = %d(After add all C)\n", var_list->len);
 
     i = 0;
     vector_t *var_set = vector_create(var_list->len, VOID_T);
