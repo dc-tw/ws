@@ -1222,7 +1222,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     //char tmp[] = "chrM";
     for(count = 0; count<refseq_length; ++count){
         if(refseq[count]=='C'){
-            variant_t *v = variant_create(var_data[0]->chr, count, 'C', 'T');
+            variant_t *v = variant_create(var_data[0]->chr, count, 67, 84);
             vector_add(var_list, v);
         }
     }
