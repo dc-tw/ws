@@ -929,6 +929,7 @@ static char *evaluate(vector_t *var_set)
         return NULL;
     char *refseq = f->seq;
     int refseq_length = f->seq_length;
+    print_status("refseq length\n");
 
     /* Reads in variant region coordinates */
     vector_t *read_list = bam_fetch(bam_file, var_data[0]->chr, var_data[0]->pos, var_data[var_set->len - 1]->pos);
