@@ -293,12 +293,12 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
             int position = var_data[t]->pos;
             double priority;
             int c = var_data[t]->alt - 'A';
-            print_status("pos=%d  priority=%d  c=%d  alt=%c\n", position, priority, c, var_data[t]->alt);
+            print_status("pos=%d  priority=%lf  c=%d  alt=%c\n", position, priority, c, var_data[t]->alt);
             if(matrix[read_length * seqnt_map[c] + (position - pos)] > 0)priority = matrix[read_length * seqnt_map[c] + (position - pos)];
             else priority = (-1) * matrix[read_length * seqnt_map[c] + (position - pos)];
             /*priority = (matrix[read_length * seqnt_map[c] + (position - pos)] > 0) ? 
                 matrix[read_length * seqnt_map[c] + (position - pos)] : (-1) * matrix[read_length * seqnt_map[c] + (position - pos)];*/
-            print_status("%d  %lf  %d\n", position, priority, c);
+            print_status("pos=%d  priority=%lf  c=%d\n", position, priority, c);
             //node.priority -= matrix[read_length * seqnt_map[c] + (node.pos - pos)]
             bisulfite_heap_push(h, priority, position, var_data[t]->alt);//heap.push(node);
             print_status("push complete\n");
