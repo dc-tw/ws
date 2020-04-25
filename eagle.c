@@ -1293,6 +1293,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
             vector_add(var_set, curr);
         }
     }
+    print_status("vatset = %d\n", var_set->len);
     /* Heterozygous non-reference variants as separate entries */
     int flag_add = 1;
     while (flag_add)
