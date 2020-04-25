@@ -747,7 +747,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         double a = sum_d(is_match, read_data[readi]->length);
         double elsewhere = log_add_exp(a, a + log_sum_exp(delta, read_data[readi]->length)) - (LGALPHA * (read_data[readi]->length - read_data[readi]->inferred_length));
 
-        print_status("starting calculate %d\n", readi);
+        print_status("starting calculate No.%d\n", readi);
         double prgu1[4], prgv1[4], prgu2[4], prgv2[4];
         /*---------------------*/
         prgu1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 

@@ -266,7 +266,7 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
         int c = seq[i] - 'A';
         if(seq[i] == 'Z')c = 'C' - 'A';
         else if(seq[i] == 'Q')c = 'G' - 'A';
-        if (c < 0 || c > 57 || (c > 25 && c < 32)) { exit_err("Character %c at pos %d (%d) not in valid alphabet\n", seq[i], i, seq_length); }
+        //if (c < 0 || c > 57 || (c > 25 && c < 32)) { exit_err("Character %c at pos %d (%d) not in valid alphabet\n", seq[i], i, seq_length); }
 
         probability[i - pos] = matrix[read_length * seqnt_map[c] + (i - pos)];
     }
