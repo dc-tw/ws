@@ -1183,7 +1183,7 @@ typedef struct
 
 static void *pool(void *work)
 {
-    //print_status("start pooling\n");
+    print_status("start pooling\n");
     work_t *w = (work_t *)work;
 
     size_t n = w->len / 10;
@@ -1195,9 +1195,7 @@ static void *pool(void *work)
         if (var_set == NULL)
             break;
 
-        print_status("start evaluate\n");
         char *outstr = evaluate(var_set);
-        print_status("end evaluate\n");
 
         if (outstr != NULL)
         {
