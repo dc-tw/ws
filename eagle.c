@@ -908,7 +908,6 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
 
 static char *evaluate(vector_t *var_set)
 {
-    print_status("start evaluate\n");
     size_t i, readi, seti;
 
     variant_t **var_data = (variant_t **)var_set->data;
@@ -916,18 +915,15 @@ static char *evaluate(vector_t *var_set)
     /* Reference sequence */
     fasta_t *f = refseq_fetch("chrM", fa_file);
     //fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
-    print_status("end ref fetch\n");
     if (f == NULL)
         return NULL;
     char *refseq = f->seq;
     int refseq_length = f->seq_length;
-    print_status("refseq length\n");
 
     /* Reads in variant region coordinates */
     //print_status("refseq length\n");
     //vector_t *read_list = bam_fetch(bam_file, "chrM", var_data[0]->pos, var_data[var_set->len - 1]->pos);
     vector_t *read_list = bam_fetch(bam_file, var_data[0]->chr, var_data[0]->pos, var_data[var_set->len - 1]->pos);
-    print_status("end bam fetch\n");
     if (read_list->len == 0)
     {
         vector_destroy(read_list);
