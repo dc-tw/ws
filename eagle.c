@@ -1206,9 +1206,12 @@ static void *pool(void *work)
             }
             print_status("vector add\n");
             vector_add(w->results, outstr);
+            print_status("vector add complete\n");
             pthread_mutex_unlock(&w->r_lock);
         }
+        print_status("vector free\n");
         vector_free(var_set); //variants in var_list so don't destroy
+        print_status("round end\n");
     }
     return NULL;
 }
