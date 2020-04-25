@@ -292,6 +292,7 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
             print_status("get in ");
             variant_t* v = var_list[t];
             print_status("%d \n", t);
+            print_status("%d  %d\n", pos, end);
             if(v->pos<pos && v->pos>end)continue;
             //node = bisulfite_heap_create(bisulfite_heap_t);//bisulfite_heap node();
             //heap_push(h, ((stats_t *)stats->data[seti])->mut, stats->data[seti]);
