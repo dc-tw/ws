@@ -753,52 +753,52 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         prgu1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
                         read_data[readi]->n_splice, seqnt_map, 0);
-        print_status("complete prgu1[0]\n");
+        //print_status("complete prgu1[0]\n");
         prgu1[1] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
-        print_status("complete prgu1[1]\n");
+        //print_status("complete prgu1[1]\n");
         prgu1[2] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
-        print_status("complete prgu1[2]\n");
+        //print_status("complete prgu1[2]\n");
         prgu1[3] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
-        print_status("complete prgu1[3]\n");
+        //print_status("complete prgu1[3]\n");
 
         prgv1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
                         read_data[readi]->n_splice, seqnt_map, 1);
-        print_status("complete prgv1[0]\n");
+        //print_status("complete prgv1[0]\n");
         prgv1[1] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
-        print_status("complete prgv1[1]\n");
+        //print_status("complete prgv1[1]\n");
         prgv1[2] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
-        print_status("complete prgv1[2]\n");
+        //print_status("complete prgv1[2]\n");
         prgv1[3] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
-        print_status("complete prgv1[3]\n");
+        //print_status("complete prgv1[3]\n");
 
         //alt stand for general(0) or modified(1)
         //use readprobmatrix2 for other strand
         prgu2[0] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
                         read_data[readi]->n_splice, seqnt_map, 0);
-        print_status("complete prgu2[0]\n");
+        //print_status("complete prgu2[0]\n");
         prgu2[1] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
-        print_status("complete prgu2[1]\n");
+        //print_status("complete prgu2[1]\n");
         prgu2[2] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
-        print_status("complete prgu2[2]\n");
+        //print_status("complete prgu2[2]\n");
         prgu2[3] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
-        print_status("complete prgu2[3]\n");
+        //print_status("complete prgu2[3]\n");
 
         prgv2[0] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
                         read_data[readi]->n_splice, seqnt_map, 1);
-        print_status("complete prgv2[0]\n");
+        //print_status("complete prgv2[0]\n");
         prgv2[1] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
-        print_status("complete prgv2[1]\n");
+        //print_status("complete prgv2[1]\n");
         prgv2[2] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
-        print_status("complete prgv2[2]\n");
+        //print_status("complete prgv2[2]\n");
         prgv2[3] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
-        print_status("complete prgv2[3]\n");
+        //print_status("complete prgv2[3]\n");
 
         //ignore mixture model part, dealing with 2 strand problem for now
         free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
-        free(readprobmatrix); free(readprobmatrix2);
+        
         /*---------------------*/
         double pout = elsewhere;
 
@@ -911,6 +911,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         }
     }
     stat->mut = log_add_exp(stat->alt, stat->het);
+    free(readprobmatrix); free(readprobmatrix2);
     //free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
     //altseq = NULL;
     if (debug >= 1)
