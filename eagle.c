@@ -747,7 +747,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         double a = sum_d(is_match, read_data[readi]->length);
         double elsewhere = log_add_exp(a, a + log_sum_exp(delta, read_data[readi]->length)) - (LGALPHA * (read_data[readi]->length - read_data[readi]->inferred_length));
 
-        print_status("starting calculate No.%d\n", readi);
+        print_status("starting calculate read No.%d\n", readi);
         double prgu1[4], prgv1[4], prgu2[4], prgv2[4];
         /*---------------------*/
         prgu1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
@@ -797,7 +797,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         //print_status("complete prgv2[3]\n");
 
         //ignore mixture model part, dealing with 2 strand problem for now
-        free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
+        //free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
         
         /*---------------------*/
         double pout = elsewhere;
@@ -909,9 +909,10 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
                 fprintf(stderr, "%d ", read_data[readi]->qual[i]);
             fprintf(stderr, "\n");
         }
+        free(readprobmatrix); free(readprobmatrix2);
     }
     stat->mut = log_add_exp(stat->alt, stat->het);
-    //free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
+    free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
     //altseq = NULL;
     if (debug >= 1)
     {
