@@ -1211,7 +1211,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     /*---------*/
     print_status("start picking C\n");
     //variant_t **var_data = (variant_t **)var_list->data;
-    char tmp[] = "chrM";
+    //char tmp[] = "chrM";
     fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
     //variant_t *v;
     if (f == NULL)
@@ -1222,7 +1222,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     //char tmp[] = "chrM";
     for(count = 0; count<refseq_length; ++count){
         if(refseq[count]=='C'){
-            variant_t *v = variant_create(tmp, count, "C", "T");
+            variant_t *v = variant_create(var_data[0]->chr, count, "C", "T");
             vector_add(var_list, v);
         }
     }
