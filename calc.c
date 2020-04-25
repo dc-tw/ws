@@ -275,17 +275,17 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
     
     if(alt == 1){//altseq
         variant_t **var_data = (variant_t **)var_set->data;
-        print_status("alt = 1\n");
+        //print_status("alt = 1\n");
         double priority = 0;//priority = score
         bisulfite_heap_t *h = bisulfite_heap_create(STATS_T);
         int t;
-        print_status("constructing B-heap\n");
-        print_status("len = %d\n", var_set->len);
+        //print_status("constructing B-heap\n");
+        //print_status("len = %d\n", var_set->len);
         for (t = 0; t < var_set->len; t++)
         {//chr pos ref alt
-            print_status("get in %d\n", t);
+            //print_status("get in %d\n", t);
             //variant_t* v = var_data[t];
-            print_status("%d  %d  %d\n", (int)var_data[t]->pos, pos, end);
+            //print_status("%d  %d  %d\n", (int)var_data[t]->pos, pos, end);
             if(var_data[t]->pos<pos && var_data[t]->pos>end)continue;
             //node = bisulfite_heap_create(bisulfite_heap_t);//bisulfite_heap node();
             //heap_push(h, ((stats_t *)stats->data[seti])->mut, stats->data[seti]);
@@ -294,18 +294,18 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
             double priority;
             int c = var_data[t]->alt[0] - 'A';
             c = c % 26;
-            print_status("pos=%d  priority=%lf  c=%d  alt=%s\n", position, priority, c, var_data[t]->alt);
+            //print_status("pos=%d  priority=%lf  c=%d  alt=%s\n", position, priority, c, var_data[t]->alt);
             if(matrix[read_length * seqnt_map[c] + (position - pos)] > 0)priority = matrix[read_length * seqnt_map[c] + (position - pos)];
             else priority = (-1) * matrix[read_length * seqnt_map[c] + (position - pos)];
             /*priority = (matrix[read_length * seqnt_map[c] + (position - pos)] > 0) ? 
                 matrix[read_length * seqnt_map[c] + (position - pos)] : (-1) * matrix[read_length * seqnt_map[c] + (position - pos)];*/
-            print_status("pos=%d  priority=%lf  c=%d\n", position, priority, c);
+            //print_status("pos=%d  priority=%lf  c=%d\n", position, priority, c);
             //node.priority -= matrix[read_length * seqnt_map[c] + (node.pos - pos)]
             bisulfite_heap_push(h, priority, position, var_data[t]->alt);//heap.push(node);
-            print_status("push complete\n");
+            //print_status("push complete\n");
         }//greedy, 用seqnt_map去計算該pos的score, seqnt_map內有quality決定match & mismatch的score
         
-        print_status("start popping B-variants\n");
+        //print_status("start popping B-variants\n");
         bisulfite_node_t *s;
         while (s = bisulfite_heap_pop(h), s != NULL)
         {
