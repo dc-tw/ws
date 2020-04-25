@@ -12,6 +12,7 @@ This program is distributed under the terms of the GNU General Public License
 #include <ctype.h>
 #include <float.h>
 #include <math.h>
+#include <time.h>
 #include "calc.h"
 #include "heap.h"
 #define print_status(M, ...)     \
