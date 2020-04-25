@@ -15,16 +15,7 @@ This program is distributed under the terms of the GNU General Public License
 #include "calc.h"
 #include "heap.h"
 
-#include "vector.h"
-/*-------------------------------------*/
-#include <time.h>
-static time_t now;
-static struct tm *time_info;
-#define print_status(M, ...)     \
-    time(&now);                  \
-    time_info = localtime(&now); \
-    fprintf(stderr, M, ##__VA_ARGS__);
-/*-------------------------------------*/
+
 //#include "bisulfite_heap.h"
 //#include "calc_gpu.h"
 
