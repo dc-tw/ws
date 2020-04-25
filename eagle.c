@@ -909,7 +909,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
                 fprintf(stderr, "%d ", read_data[readi]->qual[i]);
             fprintf(stderr, "\n");
         }
-        free(readprobmatrix); free(readprobmatrix2);
+        //free(readprobmatrix); free(readprobmatrix2);
     }
     stat->mut = log_add_exp(stat->alt, stat->het);
     free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
