@@ -7,11 +7,13 @@ Copyright 2016 Tony Kuo
 This program is distributed under the terms of the GNU General Public License
 */
 
+
 #include <stdlib.h>
 #include <ctype.h>
 #include <float.h>
 #include <math.h>
 #include "calc.h"
+#include "eagle.c"
 #include "heap.h"
 //#include "bisulfite_heap.h"
 //#include "calc_gpu.h"
@@ -272,9 +274,11 @@ double calc_read_prob_bisulfite(char* var_list, double *matrix, int read_length,
     }
     
     if(alt == 1){//altseq
+        print_status("alt = 1\n");
         double priority = 0;//priority = score
         bisulfite_heap_t *h = bisulfite_heap_create(STATS_T);
         int t;
+        print_status("constructing B-heap\n");
         for (t = 0; t < sizeof(var_list)/sizeof(var_list[0]); t++)
         {//chr pos ref alt
             variant_t* v = var_list[t];
