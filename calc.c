@@ -13,8 +13,11 @@ This program is distributed under the terms of the GNU General Public License
 #include <float.h>
 #include <math.h>
 #include "calc.h"
-#include "eagle.c"
 #include "heap.h"
+#define print_status(M, ...)     \
+    time(&now);                  \
+    time_info = localtime(&now); \
+    fprintf(stderr, M, ##__VA_ARGS__);
 //#include "bisulfite_heap.h"
 //#include "calc_gpu.h"
 
