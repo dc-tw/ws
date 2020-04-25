@@ -1226,8 +1226,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
             vector_add(var_list, v);
         }
     }
-    var_data = var_list;
-    print_status("%d  %c\n", var_list[0]->pos, var_list[0]->alt);
+    var_data = (variant_t **)var_list->data;
     qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
     /*---------*/
     print_status("new var_list->len = %d(After add all C)\n", var_list->len);
