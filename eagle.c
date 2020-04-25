@@ -619,7 +619,8 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
     
     /*----four hypothesis----*/
     print_status("constructing hypothesis2\n");
-    char *new_refseq1 = strdup(new_refseq), *new_refseq2 = strdup(refseq), *new_refseq3 = strdup(refseq), *new_refseq4;
+    char *new_refseq1 = strdup(new_refseq), *new_refseq2 = strdup(refseq), *new_refseq3 = strdup(refseq);
+    //char *new_refseq4;
     for(counter = 1; counter<refseq_length; counter++){
         if (new_refseq2[counter] == 'C')
         {
@@ -639,7 +640,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         right--;
     }
     print_status("constructing hypothesis4\n");
-    *new_refseq4 = strdup(new_refseq3);
+    char *new_refseq4 = strdup(new_refseq3);
     for(counter=0; counter<refseq_length; ++counter){
         switch (new_refseq3[counter])
         {
