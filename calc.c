@@ -260,8 +260,7 @@ void set_prob_matrix_bisulfite2(double *matrix, const read_t *read, const double
     }
 }
 /*---------------------------------------------------------------------------------------*/
-double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, \
-                                int pos, int *seqnt_map, int alt) {
+double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, int pos, int *seqnt_map, int alt) {
     int i; // array[width * row + col] = value
     int end = (pos + read_length < seq_length) ? pos + read_length : seq_length;
 
@@ -324,8 +323,7 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
     return sum_d(probability, end - pos);
 }
 
-double calc_prob_region_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, \
-                                    int pos, int start, int end, int *seqnt_map, int alt) {
+double calc_prob_region_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, int pos, int start, int end, int *seqnt_map, int alt) {
     //這一層是所有起點
     if (start < 0) start = 0;
     else if (start >= seq_length) start = seq_length - 1;
@@ -347,8 +345,7 @@ double calc_prob_region_bisulfite(vector_t *var_set, double *matrix, int read_le
 /*calc_prob_bisulfite(readprobmatrix, read_data[readi]->length, refseq, refseq_length, 
 read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);*/
 //這層處理splice
-double calc_prob_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, \
-                            int pos, int *splice_pos, int *splice_offset, int n_splice, int *seqnt_map, int alt) {
+double calc_prob_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, int pos, int *splice_pos, int *splice_offset, int n_splice, int *seqnt_map, int alt) {
     /* Get the sequence g in G and its neighborhood (half a read length flanking regions) */
     int start = pos - (read_length / 2);
     int end = pos + (read_length / 2);
