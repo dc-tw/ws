@@ -163,13 +163,10 @@ static int bam_fetch_last(const char *bam_file, const char *chr, const int pos1,
 
 static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1, const int pos2)
 {
-    print_status("start bam fetch\n");
     /* Reads in region coordinates */
     vector_t *read_list = vector_create(64, READ_T);
 
-    print_status("open sam\n");
     samFile *sam_in = sam_open(bam_file, "r"); // open bam file
-    print_status("open sam complete\n");
     if (sam_in == NULL)
     {
         exit_err("failed to open BAM file %s\n", bam_file);
