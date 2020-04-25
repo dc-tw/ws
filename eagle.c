@@ -599,10 +599,10 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
 
     int has_indel = 0;
 
-    print_status("constructing 4 hypothesis\n");
+    //print_status("constructing 4 hypothesis\n");
     /*------Z without CpG---------*/
     char *new_refseq = strdup(refseq);
-    print_status("constructing hypothesis1\n");
+    //print_status("constructing hypothesis1\n");
     if(new_refseq[0] == 'C' && new_refseq[1] != 'G')new_refseq[0] = 'Z';
     int counter;
     for(counter = 1; counter<refseq_length-1; counter++){
@@ -618,7 +618,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
     if(new_refseq[refseq_length-1] == 'C' && new_refseq[refseq_length-2] != 'G')new_refseq[refseq_length-1] = 'Z';
     
     /*----four hypothesis----*/
-    print_status("constructing hypothesis2\n");
+    //print_status("constructing hypothesis2\n");
     char *new_refseq1 = strdup(new_refseq), *new_refseq2 = strdup(refseq), *new_refseq3 = strdup(refseq);
     //char *new_refseq4;
     for(counter = 1; counter<refseq_length; counter++){
@@ -628,7 +628,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         }
     }
     /*---reverse---*/
-    print_status("constructing hypothesis3\n");
+    //print_status("constructing hypothesis3\n");
     int left = 0, right = refseq_length;
     char tmp = 0;
     while (left < right)
@@ -639,7 +639,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         left++;
         right--;
     }
-    print_status("constructing hypothesis4\n");
+    //print_status("constructing hypothesis4\n");
     char *new_refseq4 = strdup(new_refseq3);
     for(counter=0; counter<refseq_length; ++counter){
         switch (new_refseq3[counter])
@@ -704,7 +704,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
             }
         }
     }*/
-    print_status("construct complete\n");
+    //print_status("construct complete\n");
 
     /* Aligned reads */
     for (readi = 0; readi < nreads; readi++)
@@ -966,6 +966,7 @@ static char *evaluate(vector_t *var_set)
         /*mixture model below*/
         char *output = malloc(sizeof(*output));
         output[0] = '\0';
+        print_status("output methylation result\n");
         return output;
     }
     /* Variant combinations as a vector of vectors */
@@ -1182,7 +1183,7 @@ typedef struct
 
 static void *pool(void *work)
 {
-    print_status("start pooling\n");
+    //print_status("start pooling\n");
     work_t *w = (work_t *)work;
 
     size_t n = w->len / 10;
@@ -1194,7 +1195,10 @@ static void *pool(void *work)
         if (var_set == NULL)
             break;
 
+        print_status("start evaluate\n");
         char *outstr = evaluate(var_set);
+        print_status("end evaluate\n");
+
         if (outstr != NULL)
         {
             pthread_mutex_lock(&w->r_lock);
