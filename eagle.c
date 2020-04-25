@@ -1191,6 +1191,7 @@ static void *pool(void *work)
     { //pthread_t ptid = pthread_self(); uint64_t threadid = 0; memcpy(&threadid, &ptid, min(sizeof (threadid), sizeof (ptid)));
         pthread_mutex_lock(&w->q_lock);
         vector_t *var_set = (vector_t *)vector_pop(w->queue);
+        print_status("vector pop\n");
         pthread_mutex_unlock(&w->q_lock);
         if (var_set == NULL)
             break;
@@ -1209,9 +1210,7 @@ static void *pool(void *work)
             print_status("vector add complete\n");
             pthread_mutex_unlock(&w->r_lock);
         }
-        print_status("vector free\n");
         vector_free(var_set); //variants in var_list so don't destroy
-        print_status("round end\n");
     }
     return NULL;
 }
