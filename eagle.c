@@ -204,18 +204,14 @@ static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1
 
 static fasta_t *refseq_fetch(char *name, const char *fa_file)
 {
-    print_status("refseq init\n");
     pthread_mutex_lock(&refseq_lock);
-    print_status("kh get\n");
     khiter_t k = kh_get(rsh, refseq_hash, name);
-    print_status("kh end\n");
     if (k != kh_end(refseq_hash))
     {
         pthread_mutex_unlock(&refseq_lock);
         return kh_val(refseq_hash, k);
     }
 
-    print_status("fa_load\n");
     faidx_t *fai = fai_load(fa_file);
     if (fai == NULL)
     {
@@ -234,7 +230,6 @@ static fasta_t *refseq_fetch(char *name, const char *fa_file)
         exit_err("failed to find %s in reference %s\n", name, fa_file);
     }
 
-    print_status("create *f\n");
     fasta_t *f = fasta_create(name);
     //f->seq = fai_fetch(fai, f->name, &f->seq_length);
     f->seq = faidx_fetch_seq(fai, f->name, 0, faidx_seq_len(fai, f->name) - 1, &f->seq_length);
