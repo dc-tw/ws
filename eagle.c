@@ -797,6 +797,8 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         print_status("complete prgv2[3]\n");
 
         //ignore mixture model part, dealing with 2 strand problem for now
+        free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
+        free(readprobmatrix); free(readprobmatrix2);
         /*---------------------*/
         double pout = elsewhere;
 
@@ -909,7 +911,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         }
     }
     stat->mut = log_add_exp(stat->alt, stat->het);
-    free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
+    //free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
     //altseq = NULL;
     if (debug >= 1)
     {
