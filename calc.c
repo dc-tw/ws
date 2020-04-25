@@ -280,25 +280,26 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
         bisulfite_heap_t *h = bisulfite_heap_create(STATS_T);
         int t;
         print_status("constructing B-heap\n");
+        print_status("len = %d", var_set->len);
         for (t = 0; t < var_set->len; t++)
         {//chr pos ref alt
             print_status("get in ");
-            variant_t* v = var_data[t];
-            print_status("%d \n", t);
-            print_status("%d", (int)var_data[t]->pos);
+            //variant_t* v = var_data[t];
+            print_status("%d\n", t);
+            print_status("%d  ", (int)var_data[t]->pos);
             print_status("%d  %d\n", pos, end);
-            if(v->pos<pos && v->pos>end)continue;
+            if(var_data[t]->pos<pos && var_data[t]->pos>end)continue;
             //node = bisulfite_heap_create(bisulfite_heap_t);//bisulfite_heap node();
             //heap_push(h, ((stats_t *)stats->data[seti])->mut, stats->data[seti]);
             //variant_t* v = var_list[i];
-            int position = v->pos;
+            int position = var_data[t]->pos;
             double priority;
-            int c = v->alt - 'A';
+            int c = var_data[t]->alt - 'A';
             print_status("%d  %d  %d\n", position, priority, c);
             priority = (matrix[read_length * seqnt_map[c] + (position - pos)] > 0) ? 
                 matrix[read_length * seqnt_map[c] + (position - pos)] : (-1) * matrix[read_length * seqnt_map[c] + (position - pos)];
             //node.priority -= matrix[read_length * seqnt_map[c] + (node.pos - pos)]
-            bisulfite_heap_push(h, priority, position, v->alt);//heap.push(node);
+            bisulfite_heap_push(h, priority, position, var_data[t]->alt);//heap.push(node);
         }//greedy, 用seqnt_map去計算該pos的score, seqnt_map內有quality決定match & mismatch的score
         
         print_status("start popping B-variants\n");

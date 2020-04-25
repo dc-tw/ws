@@ -760,6 +760,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         print_status("complete prgu1[2]\n");
         prgu1[3] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 0);
         print_status("complete prgu1[3]\n");
+
         prgv1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
                         read_data[readi]->n_splice, seqnt_map, 1);
