@@ -932,7 +932,7 @@ static char *evaluate(vector_t *var_set)
     print_status("refseq length\n");
 
     /* Reads in variant region coordinates */
-    //print_status("%s",var_data[0]->chr);
+    //print_status("refseq length\n");
     //vector_t *read_list = bam_fetch(bam_file, "chrM", var_data[0]->pos, var_data[var_set->len - 1]->pos);
     vector_t *read_list = bam_fetch(bam_file, var_data[0]->chr, var_data[0]->pos, var_data[var_set->len - 1]->pos);
     print_status("end bam fetch\n");
@@ -1209,7 +1209,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     variant_t **var_data = (variant_t **)var_list->data;
 
     /*---------*/
-    /*print_status("start picking C\n");
+    print_status("start picking C\n");
     //variant_t **var_data = (variant_t **)var_list->data;
     //char tmp[] = "chrM";
     fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
@@ -1222,13 +1222,13 @@ static void process(const vector_t *var_list, FILE *out_fh)
     //char tmp[] = "chrM";
     for(count = 0; count<refseq_length; ++count){
         if(refseq[count]=='C'){
-            variant_t *v = variant_create(var_data[0]->chr, count, "C", "T");
+            variant_t *v = variant_create(var_data[0]->chr, count, 'C', 'T');
             vector_add(var_list, v);
         }
     }
-    qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);*/
+    qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
     /*---------*/
-    //print_status("new var_list->len = %d(After add all C)\n", var_list->len);
+    print_status("new var_list->len = %d(After add all C)\n", var_list->len);
 
     i = 0;
     vector_t *var_set = vector_create(var_list->len, VOID_T);
@@ -1293,7 +1293,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
             vector_add(var_set, curr);
         }
     }
-    print_status("varset have %d sets\n", var_set->len);
+    print_status("vatset have %d sets\n", var_set->len);
     /* Heterozygous non-reference variants as separate entries */
     int flag_add = 1;
     while (flag_add)
@@ -1628,30 +1628,7 @@ int main(int argc, char **argv)
     vector_t *var_list = vcf_read(vcf_fh);
     print_status("# Read VCF: %s\t%i entries\t%s", vcf_file, (int)var_list->len, asctime(time_info));
 
-    /*---------*/
-    print_status("start picking C\n");
-    variant_t **var_data = (variant_t **)var_list->data;
-    //char tmp[] = "chrM";
-    fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
-    //variant_t *v;
-    if (f == NULL)
-        return NULL;
-    char *refseq = f->seq;
-    int refseq_length = f->seq_length;
-    int count;
-    //char tmp[] = "chrM";
-    for(count = 0; count<refseq_length; ++count){
-        if(refseq[count]=='C'){
-            variant_t *v;
-            v->chr = var_data[0]->chr;
-            v->pos = count;
-            v->ref = 'C';
-            v->alt = 'T';
-            vector_add(var_list, v);
-        }
-    }
-    qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
-    /*---------*/
+    
 
 
     refseq_hash = kh_init(rsh);
