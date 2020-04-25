@@ -1630,7 +1630,7 @@ int main(int argc, char **argv)
 
     /*---------*/
     print_status("start picking C\n");
-    //variant_t **var_data = (variant_t **)var_list->data;
+    variant_t **var_data = (variant_t **)var_list->data;
     //char tmp[] = "chrM";
     fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
     //variant_t *v;
