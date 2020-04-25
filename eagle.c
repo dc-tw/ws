@@ -1227,6 +1227,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     }
     qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
     /*---------*/
+    print_status("var_list->len = %d", var_list->len);
 
     i = 0;
     vector_t *var_set = vector_create(var_list->len, VOID_T);
