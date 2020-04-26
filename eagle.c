@@ -1205,10 +1205,10 @@ static void *pool(void *work)
             {
                 print_status("# Progress: %zd%%: %zd / %zd\t%s", 10 * w->results->len / n, w->results->len, w->queue->len, asctime(time_info));
             }
-            print_status("vector add\n");
+            print_status("w->result add\n");
             vector_add(w->results, outstr);
-            print_status("vector add complete\n");
-            //print_status("remain = %d\n", (w->queue)->len);
+            print_status("w->result add complete\n");
+            print_status("remain = %d\n", (w->queue)->len);
             pthread_mutex_unlock(&w->r_lock);
         }
         vector_free(var_set); //variants in var_list so don't destroy
