@@ -1199,6 +1199,7 @@ static void *pool(void *work)
 
         if (outstr != NULL)
         {
+            print_status("varset pop pos=%d\n", ((variant_t *)var_set)->pos);
             pthread_mutex_lock(&w->r_lock);
             if (!verbose && n > 10 && w->results->len > 10 && w->results->len % n == 0)
             {
@@ -1307,7 +1308,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
             vector_add(var_set, curr);
         }
     }
-    print_status("vatset have %d sets\n", var_set->len);
+    print_status("varset have %d sets\n", var_set->len);
     /* Heterozygous non-reference variants as separate entries */
     int flag_add = 1;
     while (flag_add)
