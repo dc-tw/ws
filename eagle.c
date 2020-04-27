@@ -1198,6 +1198,7 @@ static void *pool(void *work)
 
         char *outstr = evaluate(var_set);
 
+        print_status("size of outstr = %d\n", sizeof(outstr));
         if (outstr != NULL)
         {
             print_status("varset pop pos=%d\n", ((variant_t *)var_set)->pos);
