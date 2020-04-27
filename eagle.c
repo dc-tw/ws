@@ -163,6 +163,7 @@ static int bam_fetch_last(const char *bam_file, const char *chr, const int pos1,
 
 static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1, const int pos2)
 {
+    print_status("region %d to %d\n", pos1, pos2);
     /* Reads in region coordinates */
     vector_t *read_list = vector_create(64, READ_T);
 
@@ -949,6 +950,7 @@ static char *evaluate(vector_t *var_set)
         vector_destroy(read_list);
         free(read_list);
         read_list = NULL;
+        print_status("readlist->len == 0\n");
         return NULL;
     }
     read_t **read_data = (read_t **)read_list->data;
@@ -1198,7 +1200,6 @@ static void *pool(void *work)
 
         char *outstr = evaluate(var_set);
 
-        print_status("size of outstr = %d\n", sizeof(outstr));
         if (outstr != NULL)
         {
             print_status("varset pop pos=%d\n", ((variant_t *)var_set)->pos);
