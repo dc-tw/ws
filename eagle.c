@@ -1238,7 +1238,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     for(count = 0; count<refseq_length; ++count){
         if(refseq[count]=='C'){
             variant_t *v = variant_create(var_data[0]->chr, count, "C", "T");
-            v->chr = tmp;
+            //v->chr = tmp;
             vector_add(var_list, v);
         }
     }
