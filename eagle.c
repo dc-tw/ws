@@ -1192,6 +1192,7 @@ static void *pool(void *work)
         pthread_mutex_lock(&w->q_lock);
         vector_t *var_set = (vector_t *)vector_pop(w->queue);
         pthread_mutex_unlock(&w->q_lock);
+        print_status("remain = %d\n", w->queue->len);
         if (var_set == NULL)
             break;
 
@@ -1223,7 +1224,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     variant_t **var_data = (variant_t **)var_list->data;
 
     /*---------*/
-    print_status("start picking C\n");
+    //print_status("start picking C\n");
     //variant_t **var_data = (variant_t **)var_list->data;
     //char tmp[] = "chrM";
     fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
@@ -1233,17 +1234,18 @@ static void process(const vector_t *var_list, FILE *out_fh)
     char *refseq = f->seq;
     int refseq_length = f->seq_length;
     int count;
-    //char tmp[] = "chrM";
+    char *tmp = var_data[0]->chr;
     for(count = 0; count<refseq_length; ++count){
         if(refseq[count]=='C'){
             variant_t *v = variant_create(var_data[0]->chr, count, "C", "T");
+            v->chr = tmp;
             vector_add(var_list, v);
         }
     }
     var_data = (variant_t **)var_list->data;
     qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
     /*---------*/
-    print_status("new var_list->len = %d(After add all C)\n", var_list->len);
+    //print_status("new var_list->len = %d(After add all C)\n", var_list->len);
 
     i = 0;
     vector_t *var_set = vector_create(var_list->len, VOID_T);
@@ -1308,7 +1310,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
             vector_add(var_set, curr);
         }
     }
-    print_status("varset have %d sets\n", var_set->len);
+    //print_status("varset have %d sets\n", var_set->len);
     /* Heterozygous non-reference variants as separate entries */
     int flag_add = 1;
     while (flag_add)
