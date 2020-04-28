@@ -1373,7 +1373,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
     for(count=0; count<var_list->len; ++count)var_data[count]->chr = var_data[0]->chr;
     /*---------*/
-    //print_status("new var_list->len = %d(After add all C)\n", var_list->len);
+    print_status("new var_list->len = %d(After add all C)\n", var_list->len);
 
     i = 0;
     vector_t *var_set = vector_create(var_list->len, VOID_T);
