@@ -311,6 +311,7 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
         {
             //bisulfite_heap_pop(node);//node = heap.pop();//也許要記錄which variant
             if(s->priority<0)break;
+            if(s->pos - pos > end-pos)continue;
             probability[s->pos - pos] = s->priority;
         }
         bisulfite_heap_free(h);

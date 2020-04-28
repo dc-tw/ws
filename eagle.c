@@ -165,7 +165,7 @@ static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1
 {
     print_status("region %d to %d\n", pos1, pos2);
     /* Reads in region coordinates */
-    vector_t *read_list = vector_create(64, READ_T);
+    vector_t *read_list = vector_create(256, READ_T);
 
     samFile *sam_in = sam_open(bam_file, "r"); // open bam file
     if (sam_in == NULL)
@@ -422,7 +422,7 @@ static void calc_likelihood(stats_t *stat, vector_t *var_set, const char *refseq
         /* Read probability matrix */
         double readprobmatrix[NT_CODES * read_data[readi]->length];
         //set_prob_matrix(readprobmatrix, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
-        bisulfite_set_prob_matrix(readprobmatrix, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
+        //bisulfite_set_prob_matrix(readprobmatrix, read_data[readi], is_match, no_match, seqnt_map, bisulfite);
         //is no match 表示penalty, seqnt_map 表offset b=b, read_data[i]表一條read, 最終將readprobmatrix寫成一個?
 
         /* Outside Paralog Exact Formuation: Probability that read is from an outside the reference paralogous "elsewhere", f in F.  Approximate the bulk of probability distribution P(r|f):
@@ -960,17 +960,137 @@ static char *evaluate(vector_t *var_set)
     if(methylation){
         vector_t *stats = vector_create(var_set->len + 1, STATS_T);
         stats_t *s = stats_create((vector_int_t *)var_set->data[seti], read_list->len);
-        vector_add(stats, s);
+        //vector_add(stats, s);
         calc_likelihood_bisulfite(s, var_set, refseq, refseq_length, read_data, read_list->len, readi, seqnt_map);
-        //stat store scores then using mixture model
-            
-            //calc_likelihood(s, var_set, refseq, refseq_length, read_data, read_list->len, seti, seqnt_map);
-        /*mixture model below*/
+        vector_add(stats, s);
+
+        stats_t **stat = (stats_t **)stats->data;
+        //char *output = malloc(sizeof(*output));
+        //output[0] = '\0';
+        print_status("probablility model\n");
+        
+        int c[read_list->len];//int c[stats->len];
+        memset(c, 0, sizeof(c));
+        for (readi = 0; readi < read_list->len; readi++)
+            c[read_data[readi]->index]++; // combinations, based on best combination in each read
+
+        vector_int_t *haplotypes = vector_int_create(stats->len);
+        for (i = 0; i < stats->len; i++)
+        {
+            if ((double)c[i] / (double)read_list->len >= 0.1)
+                vector_int_add(haplotypes, i); // relevant combination if read count >= 10% of reads seen
+        }
+        vector_t *combo = powerset(var_set->len, maxh);
+        combo = vector_create(haplotypes->len, VOID_T);
+        if (haplotypes->len > 1)
+            combinations(combo, 2, haplotypes->len); // combination pairs
+
+        vector_double_t *prhap = vector_double_create(combo->len);
+        for (seti = 0; seti < combo->len; seti++)
+        { // mixture model probabilities of combination pairs
+            int x = haplotypes->data[((vector_int_t *)combo->data[seti])->data[0]];
+            int y = haplotypes->data[((vector_int_t *)combo->data[seti])->data[1]];
+            vector_double_add(prhap, 0);
+            for (readi = 0; readi < read_list->len; readi++)
+            {
+                if (stat[x]->read_prgv->data[readi] == -DBL_MAX && stat[y]->read_prgv->data[readi] == -DBL_MAX)
+                    continue;
+                double phet = log_add_exp(LOG50 + stat[x]->read_prgv->data[readi], LOG50 + stat[y]->read_prgv->data[readi]);
+                double phet10 = log_add_exp(LOG10 + stat[x]->read_prgv->data[readi], LOG90 + stat[y]->read_prgv->data[readi]);
+                double phet90 = log_add_exp(LOG90 + stat[x]->read_prgv->data[readi], LOG10 + stat[y]->read_prgv->data[readi]);
+                if (phet10 > phet)
+                    phet = phet10;
+                if (phet90 > phet)
+                    phet = phet90;
+                prhap->data[seti] += phet; // equal prior probability to ref since this assumes heterozygous non-reference variant
+            }
+        }
+
+        double total = log_add_exp(stat[0]->mut, stat[0]->ref);
+        for (seti = 1; seti < stats->len; seti++)
+        {
+            total = log_add_exp(total, stat[seti]->mut);
+            total = log_add_exp(total, stat[seti]->ref);
+        }
+        for (seti = 0; seti < combo->len; seti++)
+            total = log_add_exp(total, prhap->data[seti]);
+
         char *output = malloc(sizeof(*output));
         output[0] = '\0';
-        print_status("output methylation result\n");
+        if (mvh)
+        { /* Max likelihood variant hypothesis */
+            size_t max_seti = 0;
+            double r = stat[0]->mut - stat[0]->ref;
+            double has_alt = stat[0]->mut;
+            for (seti = 1; seti < stats->len; seti++)
+            {
+                if (stat[seti]->mut - stat[seti]->ref > r)
+                {
+                    r = stat[seti]->mut - stat[seti]->ref;
+                    has_alt = stat[seti]->mut;
+                    max_seti = seti;
+                }
+            }
+            vector_t *v = vector_create(var_set->len, VARIANT_T);
+            for (i = 0; i < stat[max_seti]->combo->len; i++)
+                vector_add(v, var_data[stat[max_seti]->combo->data[i]]);
+            variant_print(&output, v, 0, stat[max_seti]->seen, stat[max_seti]->ref_count, stat[max_seti]->alt_count, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
+            vector_free(v); //variants in var_list so don't destroy
+        }
+        else
+        { /* Marginal probabilities & likelihood ratios*/
+            for (i = 0; i < var_set->len; i++)
+            {
+                double has_alt = 0;
+                double not_alt = 0;
+                int acount = -1;
+                int rcount = -1;
+                int seen = -1;
+                for (seti = 0; seti < stats->len; seti++)
+                {
+                    if (variant_find(stat[seti]->combo, i) != -1)
+                    { // if variant is in this combination
+                        has_alt = (has_alt == 0) ? stat[seti]->mut : log_add_exp(has_alt, stat[seti]->mut);
+                        not_alt = (not_alt == 0) ? stat[seti]->ref : log_add_exp(not_alt, stat[seti]->ref);
+                        if (stat[seti]->seen > seen)
+                            seen = stat[seti]->seen;
+                        if (stat[seti]->alt_count > acount)
+                        {
+                            acount = stat[seti]->alt_count;
+                            rcount = stat[seti]->ref_count;
+                        }
+                    }
+                    else
+                    {
+                        not_alt = (not_alt == 0) ? stat[seti]->mut : log_add_exp(not_alt, stat[seti]->mut);
+                    }
+                }
+                for (seti = 0; seti < combo->len; seti++)
+                {
+                    int x = haplotypes->data[((vector_int_t *)combo->data[seti])->data[0]];
+                    int y = haplotypes->data[((vector_int_t *)combo->data[seti])->data[1]];
+                    if (variant_find(stat[x]->combo, i) != -1 || variant_find(stat[y]->combo, i) != -1)
+                        has_alt = log_add_exp(has_alt, prhap->data[seti]);
+                    else
+                        not_alt = log_add_exp(not_alt, prhap->data[seti]);
+                }
+                variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
+            }
+        }
+        for (i = 0; i < combo->len; i++)
+        vector_int_free(combo->data[i]);
+        vector_free(combo); //not destroyed because previously vector_int_free all elements
+        vector_int_free(haplotypes);
+        vector_double_free(prhap);
+        vector_destroy(read_list);
+        free(read_list);
+        read_list = NULL;
+        vector_destroy(stats);
+        free(stats);
+        stats = NULL;
         return output;
-    }
+    }//methylation above
+
     /* Variant combinations as a vector of vectors */
     vector_t *combo = powerset(var_set->len, maxh);
     vector_t *stats = vector_create(var_set->len + 1, STATS_T);
@@ -1229,7 +1349,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     //print_status("start picking C\n");
     //variant_t **var_data = (variant_t **)var_list->data;
     //char tmp[] = "chrM";
-    fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
+    /*fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
     //variant_t *v;
     if (f == NULL)
         return NULL;
@@ -1237,7 +1357,8 @@ static void process(const vector_t *var_list, FILE *out_fh)
     int refseq_length = f->seq_length;
     int count;
     char *tmp = var_data[0]->chr;
-    for(count = 0; count<refseq_length; ++count){
+    //for(count = 0; count<refseq_length; ++count){
+    for(count = 0; count<100; ++count){
         if(refseq[count]=='C'){
             variant_t *v = variant_create(var_data[0]->chr, count, "C", "T");
             //v->chr = tmp;
@@ -1246,6 +1367,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     }
     var_data = (variant_t **)var_list->data;
     qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
+    for(count=0; count<var_list->len; ++count)var_data[count]->chr = var_data[0]->chr;*/
     /*---------*/
     //print_status("new var_list->len = %d(After add all C)\n", var_list->len);
 
