@@ -722,6 +722,9 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         double is_match[read_data[readi]->length], no_match[read_data[readi]->length];
         for (i = 0; i < read_data[readi]->length; i++)
         {
+            if(read_data[readi]->qual[i]==NULL)continue;
+            if(read_data[readi]->qual[i]>=50)read_data[readi]->qual[i] = 49;
+            if(read_data[readi]->qual[i]<=0)read_data[readi]->qual[i] = 0;
             is_match[i] = p_match[read_data[readi]->qual[i]];//2 array紀錄penalty與offset的關係
             no_match[i] = p_mismatch[read_data[readi]->qual[i]];//quality
             if (dp)
@@ -1077,17 +1080,18 @@ static char *evaluate(vector_t *var_set)
                 variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
             }
         }
+        print_status("free data\n");
         for (i = 0; i < combo->len; i++)
         vector_int_free(combo->data[i]);
         vector_free(combo); //not destroyed because previously vector_int_free all elements
         vector_int_free(haplotypes);
-        vector_double_free(prhap);
-        vector_destroy(read_list);
+        //vector_double_free(prhap);
+        /*vector_destroy(read_list);
         free(read_list);
         read_list = NULL;
         vector_destroy(stats);
         free(stats);
-        stats = NULL;
+        stats = NULL;*/
         return output;
     }//methylation above
 
@@ -1311,6 +1315,7 @@ static void *pool(void *work)
     size_t n = w->len / 10;
     while (1)
     { //pthread_t ptid = pthread_self(); uint64_t threadid = 0; memcpy(&threadid, &ptid, min(sizeof (threadid), sizeof (ptid)));
+        if(w->queue->len == 0)break;
         pthread_mutex_lock(&w->q_lock);
         vector_t *var_set = (vector_t *)vector_pop(w->queue);
         pthread_mutex_unlock(&w->q_lock);
@@ -1331,7 +1336,7 @@ static void *pool(void *work)
             print_status("w->result add\n");
             vector_add(w->results, outstr);
             print_status("w->result add complete\n");
-            print_status("remain = %d\n", (w->queue)->len);
+            //print_status("remain = %d\n", (w->queue)->len);
             pthread_mutex_unlock(&w->r_lock);
         }
         vector_free(var_set); //variants in var_list so don't destroy
