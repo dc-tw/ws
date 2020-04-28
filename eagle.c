@@ -167,23 +167,28 @@ static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1
     /* Reads in region coordinates */
     vector_t *read_list = vector_create(256, READ_T);
 
+    print_status("sam open\n");
     samFile *sam_in = sam_open(bam_file, "r"); // open bam file
     if (sam_in == NULL)
     {
         exit_err("failed to open BAM file %s\n", bam_file);
     }
+    print_status("sam_hdr_read\n");
     bam_hdr_t *bam_header = sam_hdr_read(sam_in); // bam header
     if (bam_header == 0)
     {
         exit_err("bad header %s\n", bam_file);
     }
+    print_status("sam_index_load\n");
     hts_idx_t *bam_idx = sam_index_load(sam_in, bam_file); // bam index
     if (bam_idx == NULL)
     {
         exit_err("failed to open BAM index %s\n", bam_file);
     }
 
+    print_status("bam_name2id\n");
     int tid = bam_name2id(bam_header, chr);
+    print_status("sam_itr_queryi\n");
     hts_itr_t *iter = sam_itr_queryi(bam_idx, tid, pos1 - 1, pos2); // read iterator
     if (iter != NULL)
     {
@@ -196,6 +201,7 @@ static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1
         }
         bam_destroy1(aln);
     }
+    print_status("usage destroy\n");
     hts_itr_destroy(iter);
     hts_idx_destroy(bam_idx);
     bam_hdr_destroy(bam_header);
@@ -965,6 +971,7 @@ static char *evaluate(vector_t *var_set)
         vector_t *stats = vector_create(var_set->len + 1, STATS_T);
         stats_t *s = stats_create((vector_int_t *)var_set->data[seti], read_list->len);
         //vector_add(stats, s);
+        print_status("start calc_likelihood\n");
         calc_likelihood_bisulfite(s, var_set, refseq, refseq_length, read_data, read_list->len, readi, seqnt_map);
         vector_add(stats, s);
 
