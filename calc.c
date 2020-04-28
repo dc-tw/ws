@@ -283,16 +283,9 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
         bisulfite_heap_t *h = bisulfite_heap_create(STATS_T);
         int t;
         //print_status("constructing B-heap\n");
-        //print_status("len = %d\n", var_set->len);
         for (t = 0; t < var_set->len; t++)
         {//chr pos ref alt
-            //print_status("get in %d\n", t);
-            //variant_t* v = var_data[t];
-            //print_status("%d  %d  %d\n", (int)var_data[t]->pos, pos, end);
             if(var_data[t]->pos<pos && var_data[t]->pos>end)continue;
-            //node = bisulfite_heap_create(bisulfite_heap_t);//bisulfite_heap node();
-            //heap_push(h, ((stats_t *)stats->data[seti])->mut, stats->data[seti]);
-            //variant_t* v = var_list[i];
             int position = var_data[t]->pos;
             double priority;
             int c = var_data[t]->alt[0] - 'A';
