@@ -968,8 +968,6 @@ static char *evaluate(vector_t *var_set)
         vector_add(stats, s);
 
         stats_t **stat = (stats_t **)stats->data;
-        //char *output = malloc(sizeof(*output));
-        //output[0] = '\0';
         print_status("probablility model\n");
         
         int c[read_list->len];//int c[stats->len];

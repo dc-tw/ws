@@ -255,7 +255,7 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
     int i; // array[width * row + col] = value
     int end = (pos + read_length < seq_length) ? pos + read_length : seq_length;
 
-    if(seq == NULL)return 0;
+    if(seq==NULL || seq[0]==NULL)return 0;//if(seq == NULL)return 0;
     double probability[end - pos];
     /*for (i = pos;  i < end; i++) {
         int c = seq[i] - 'A';
@@ -263,8 +263,6 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
 
         probability[i - pos] = matrix[read_length * seqnt_map[c] + (i - pos)];
     }*/
-    //heap.create();
-    //refseq
     for (i = pos;  i < end; i++) {
         int c = seq[i] - 'A';
         if(seq[i] == 'Z')c = 'C' - 'A';
