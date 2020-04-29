@@ -271,6 +271,10 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
             probability[i - pos] = 0;
             continue;
         }
+        if(read_length * seqnt_map[c] + (i - pos) < 26*read_length){
+            probability[i - pos] = 0;
+            continue;
+        }
         //if (c < 0 || c > 57 || (c > 25 && c < 32)) { exit_err("Character %c at pos %d (%d) not in valid alphabet\n", seq[i], i, seq_length); }
 
         probability[i - pos] = matrix[read_length * seqnt_map[c] + (i - pos)];
@@ -309,6 +313,7 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
             if(s->priority<0)break;
             if(s->pos - pos > end-pos)continue;
             probability[s->pos - pos] = s->priority;
+            if(h->len == 0)break;
         }
         bisulfite_heap_free(h);
     }
@@ -317,6 +322,7 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
 
 double calc_prob_region_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, int pos, int start, int end, int *seqnt_map, int alt) {
     //這一層是所有起點
+    print_status("calc prob region\n");
     if (start < 0) start = 0;
     else if (start >= seq_length) start = seq_length - 1;
     if (end < 0) end = 0;
@@ -339,6 +345,7 @@ read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_of
 //這層處理splice
 double calc_prob_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, int pos, int *splice_pos, int *splice_offset, int n_splice, int *seqnt_map, int alt) {
     /* Get the sequence g in G and its neighborhood (half a read length flanking regions) */
+    print_status("calc prob\n");
     int start = pos - (read_length / 2);
     int end = pos + (read_length / 2);
 

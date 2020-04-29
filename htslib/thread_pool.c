@@ -99,11 +99,8 @@ static int hts_tpool_add_result(hts_tpool_job *j, void *data) {
         return 0;
     }
 
-    if (!(r = malloc(sizeof(*r)))) {
-        pthread_mutex_unlock(&q->p->pool_m);
-        hts_tpool_process_shutdown(q);
+    if (!(r = malloc(sizeof(*r))))
         return -1;
-    }
 
     r->next = NULL;
     r->data = data;
@@ -584,8 +581,7 @@ static void *tpool_worker(void *arg) {
             DBG_OUT(stderr, "%d: Processing queue %p, serial %"PRId64"\n",
                     worker_id(j->p), q, j->serial);
 
-            if (hts_tpool_add_result(j, j->func(j->arg)) < 0)
-                goto err;
+            hts_tpool_add_result(j, j->func(j->arg));
             //memset(j, 0xbb, sizeof(*j));
             free(j);
 
@@ -605,12 +601,6 @@ static void *tpool_worker(void *arg) {
     pthread_mutex_unlock(&p->pool_m);
 #ifdef DEBUG
     fprintf(stderr, "%d: Shutting down\n", worker_id(p));
-#endif
-    return NULL;
-
- err:
-#ifdef DEBUG
-    fprintf(stderr, "%d: Failed to add result\n", worker_id(p));
 #endif
     return NULL;
 }

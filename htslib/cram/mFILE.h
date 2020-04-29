@@ -28,8 +28,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef CRAM_MFILE_H
-#define CRAM_MFILE_H
+#ifndef _MFILE_H_
+#define _MFILE_H_
 
 #include <stdio.h>
 
@@ -90,4 +90,4 @@ void mfascii(mFILE *mf);
 }
 #endif
 
-#endif /* CRAM_MFILE_H */
+#endif /* _MFILE_H_ */

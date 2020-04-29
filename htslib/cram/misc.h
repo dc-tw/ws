@@ -60,8 +60,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef CRAM_MISC_H
-#define CRAM_MISC_H
+#ifndef _misc_h
+#define _misc_h
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,4 +74,4 @@ extern "C" {
 }
 #endif
 
-#endif /* CRAM_MISC_H */
+#endif /*_misc_h*/

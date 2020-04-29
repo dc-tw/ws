@@ -39,8 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * although these should not be included directly (use this file instead).
  */
 
-#ifndef CRAM_ALL_H
-#define CRAM_ALL_H
+#ifndef _CRAM_H_
+#define _CRAM_H_
 
 #include "cram/cram_samtools.h"
 #include "header.h"

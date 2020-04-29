@@ -29,7 +29,6 @@ DEALINGS IN THE SOFTWARE.  */
 #include <string.h>
 #include <strings.h>
 #include <limits.h>
-#include <inttypes.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include "htslib/synced_bcf_reader.h"
@@ -39,15 +38,11 @@ DEALINGS IN THE SOFTWARE.  */
 #include "htslib/thread_pool.h"
 #include "bcf_sr_sort.h"
 
-// Maximum indexable coordinate of .csi, for default min_shift of 14.
-// This comes out to about 17 Tbp.  Limiting factor is the bin number,
-// which is a uint32_t in CSI.  The highest number of levels compatible
-// with this is 10 (needs 31 bits).
-#define MAX_CSI_COOR ((1LL << (14 + 30)) - 1)
+#define MAX_CSI_COOR 0x7fffffff     // maximum indexable coordinate of .csi
 
 typedef struct
 {
-    hts_pos_t start, end;
+    uint32_t start, end;
 }
 region1_t;
 
@@ -65,7 +60,7 @@ typedef struct
 }
 aux_t;
 
-static int _regions_add(bcf_sr_regions_t *reg, const char *chr, hts_pos_t start, hts_pos_t end);
+static int _regions_add(bcf_sr_regions_t *reg, const char *chr, int start, int end);
 static bcf_sr_regions_t *_regions_init_string(const char *str);
 static int _regions_match_alleles(bcf_sr_regions_t *reg, int als_idx, bcf1_t *rec);
 
@@ -388,7 +383,7 @@ void debug_buffer(FILE *fp, bcf_sr_t *reader)
     for (j=0; j<=reader->nbuffer; j++)
     {
         bcf1_t *line = reader->buffer[j];
-        fprintf(fp,"\t%p\t%s%s\t%s:%"PRIhts_pos"\t%s ", (void*)line,reader->fname,j==0?"*":" ",reader->header->id[BCF_DT_CTG][line->rid].key,line->pos+1,line->n_allele?line->d.allele[0]:"");
+        fprintf(fp,"\t%p\t%s%s\t%s:%d\t%s ", (void*)line,reader->fname,j==0?"*":" ",reader->header->id[BCF_DT_CTG][line->rid].key,line->pos+1,line->n_allele?line->d.allele[0]:"");
         int k;
         for (k=1; k<line->n_allele; k++) fprintf(fp," %s", line->d.allele[k]);
         fprintf(fp,"\n");
@@ -424,11 +419,11 @@ static inline int has_filter(bcf_sr_t *reader, bcf1_t *line)
     return 0;
 }
 
-static int _reader_seek(bcf_sr_t *reader, const char *seq, hts_pos_t start, hts_pos_t end)
+static int _reader_seek(bcf_sr_t *reader, const char *seq, int start, int end)
 {
     if ( end>=MAX_CSI_COOR )
     {
-        hts_log_error("The coordinate is out of csi index limit: %"PRIhts_pos, end+1);
+        hts_log_error("The coordinate is out of csi index limit: %d", end+1);
         exit(1);
     }
     if ( reader->itr )
@@ -450,7 +445,7 @@ static int _reader_seek(bcf_sr_t *reader, const char *seq, hts_pos_t start, hts_
         reader->itr = bcf_itr_queryi(reader->bcf_idx,tid,start,end+1);
     }
     if (!reader->itr) {
-        hts_log_error("Could not seek: %s:%"PRIhts_pos"-%"PRIhts_pos, seq, start + 1, end + 1);
+        hts_log_error("Could not seek: %s:%d-%d", seq, start + 1, end + 1);
         assert(0);
     }
     return 0;
@@ -585,8 +580,7 @@ static void _reader_shift_buffer(bcf_sr_t *reader)
 
 static int next_line(bcf_srs_t *files)
 {
-    int i;
-    hts_pos_t min_pos = HTS_POS_MAX;
+    int i, min_pos = INT_MAX;
     const char *chr = NULL;
 
     // Loop until next suitable line is found or all readers have finished
@@ -611,7 +605,7 @@ static int next_line(bcf_srs_t *files)
             else if ( min_pos==files->readers[i].buffer[1]->pos )
                 bcf_sr_sort_add_active(&BCF_SR_AUX(files)->sort, i);
         }
-        if ( min_pos==HTS_POS_MAX )
+        if ( min_pos==INT_MAX )
         {
             if ( !files->regions ) break;
             continue;
@@ -627,7 +621,7 @@ static int next_line(bcf_srs_t *files)
                 for (i=0; i<files->nreaders; i++)
                     if ( files->readers[i].nbuffer && files->readers[i].buffer[1]->pos==min_pos )
                         _reader_shift_buffer(&files->readers[i]);
-                min_pos = HTS_POS_MAX;
+                min_pos = INT_MAX;
                 chr = NULL;
                 continue;
             }
@@ -677,7 +671,7 @@ static void bcf_sr_seek_start(bcf_srs_t *readers)
 }
 
 
-int bcf_sr_seek(bcf_srs_t *readers, const char *seq, hts_pos_t pos)
+int bcf_sr_seek(bcf_srs_t *readers, const char *seq, int pos)
 {
     if ( !readers->regions ) return 0;
     bcf_sr_sort_reset(&BCF_SR_AUX(readers)->sort);
@@ -772,7 +766,7 @@ int bcf_sr_set_samples(bcf_srs_t *files, const char *fname, int is_file)
 
 // Add a new region into a list sorted by start,end. On input the coordinates
 // are 1-based, stored 0-based, inclusive.
-static int _regions_add(bcf_sr_regions_t *reg, const char *chr, hts_pos_t start, hts_pos_t end)
+static int _regions_add(bcf_sr_regions_t *reg, const char *chr, int start, int end)
 {
     if ( start==-1 && end==-1 )
     {
@@ -833,7 +827,7 @@ static bcf_sr_regions_t *_regions_init_string(const char *str)
 
     kstring_t tmp = {0,0,0};
     const char *sp = str, *ep = str;
-    hts_pos_t from, to;
+    int from, to;
     while ( 1 )
     {
         while ( *ep && *ep!=',' && *ep!=':' ) ep++;
@@ -885,7 +879,7 @@ static bcf_sr_regions_t *_regions_init_string(const char *str)
 
 // ichr,ifrom,ito are 0-based;
 // returns -1 on error, 0 if the line is a comment line, 1 on success
-static int _regions_parse_line(char *line, int ichr, int ifrom, int ito, char **chr, char **chr_end, hts_pos_t *from, hts_pos_t *to)
+static int _regions_parse_line(char *line, int ichr,int ifrom,int ito, char **chr,char **chr_end,int *from,int *to)
 {
     if (ifrom < 0 || ito < 0) return -1;
     *chr_end = NULL;
@@ -975,8 +969,7 @@ bcf_sr_regions_t *bcf_sr_regions_init(const char *regions, int is_file, int ichr
         while ( hts_getline(reg->file, KS_SEP_LINE, &reg->line) > 0 )
         {
             char *chr, *chr_end;
-            hts_pos_t from, to;
-            int ret;
+            int from, to, ret;
             ret = _regions_parse_line(reg->line.s, ichr,ifrom,abs(ito), &chr,&chr_end,&from,&to);
             if ( ret < 0 )
             {
@@ -1083,8 +1076,7 @@ int bcf_sr_regions_next(bcf_sr_regions_t *reg)
 
     // reading from tabix
     char *chr, *chr_end;
-    int ichr = 0, ifrom = 1, ito = 2, is_bed = 0;
-    hts_pos_t from, to;
+    int ichr = 0, ifrom = 1, ito = 2, is_bed = 0, from, to;
     if ( reg->tbx )
     {
         ichr   = reg->tbx->conf.sc-1;
@@ -1203,7 +1195,7 @@ static int _regions_match_alleles(bcf_sr_regions_t *reg, int als_idx, bcf1_t *re
     return !(type & VCF_INDEL) ? 1 : 0;
 }
 
-int bcf_sr_regions_overlap(bcf_sr_regions_t *reg, const char *seq, hts_pos_t start, hts_pos_t end)
+int bcf_sr_regions_overlap(bcf_sr_regions_t *reg, const char *seq, int start, int end)
 {
     int iseq;
     if ( khash_str2int_get(reg->seq_hash, seq, &iseq)<0 ) return -1;    // no such sequence

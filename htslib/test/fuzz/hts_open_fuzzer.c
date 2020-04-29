@@ -35,6 +35,13 @@ DEALINGS IN THE SOFTWARE.  */
 #include "htslib/sam.h"
 #include "htslib/vcf.h"
 
+// Duplicated from: htsfile.c
+static htsFile *dup_stdout(const char *mode) {
+    int fd = dup(STDOUT_FILENO);
+    hFILE *hfp = (fd >= 0) ? hdopen(fd, mode) : NULL;
+    return hfp ? hts_hopen(hfp, "-", mode) : NULL;
+}
+
 static void hts_close_or_abort(htsFile* file) {
     if (hts_close(file) != 0) {
         abort();
@@ -45,27 +52,21 @@ static void view_sam(htsFile *in) {
     if (!in) {
         return;
     }
-    samFile *out = sam_open("/dev/null", "w");
-    if (!out) {
-        abort();
-    }
-    sam_hdr_t *hdr = sam_hdr_read(in);
+    samFile *out = dup_stdout("w");
+    bam_hdr_t *hdr = sam_hdr_read(in);
     if (hdr == NULL) {
         hts_close_or_abort(out);
         return;
     }
 
-    // This will force the header to be parsed.
-    (void) sam_hdr_count_lines(hdr, "SQ");
-
     if (sam_hdr_write(out, hdr) != 0) {
-        sam_hdr_destroy(hdr);
+        bam_hdr_destroy(hdr);
         hts_close_or_abort(out);
         return;
     }
     bam1_t *b = bam_init1();
     if (b == NULL) {
-        sam_hdr_destroy(hdr);
+        bam_hdr_destroy(hdr);
         hts_close_or_abort(out);
         return;
     }
@@ -76,7 +77,7 @@ static void view_sam(htsFile *in) {
     }
     bam_destroy1(b);
 
-    sam_hdr_destroy(hdr);
+    bam_hdr_destroy(hdr);
     hts_close_or_abort(out);
 }
 
@@ -84,10 +85,7 @@ static void view_vcf(htsFile *in) {
     if (!in) {
         return;
     }
-    vcfFile *out = vcf_open("/dev/null", "w");
-    if (!out) {
-        abort();
-    }
+    vcfFile *out = dup_stdout("w");
     bcf_hdr_t *hdr = bcf_hdr_read(in);
     if (hdr == NULL) {
         hts_close_or_abort(out);

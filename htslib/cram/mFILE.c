@@ -86,8 +86,6 @@ static char *mfload(FILE *fp, const char *fn, size_t *size, int binary) {
 
     if (fn && -1 != stat(fn, &sb)) {
         data = malloc(allocated = sb.st_size);
-        if (!data)
-            return NULL;
         bufsize = sb.st_size;
     } else {
         fn = NULL;
@@ -97,13 +95,7 @@ static char *mfload(FILE *fp, const char *fn, size_t *size, int binary) {
         size_t len;
         if (used + bufsize > allocated) {
             allocated += bufsize;
-            char *datan = realloc(data, allocated);
-            if (datan) {
-                data = datan;
-            } else {
-                free(data);
-                return NULL;
-            }
+            data = realloc(data, allocated);
         }
         len = fread(data + used, 1, allocated - used, fp);
         if (len > 0)
@@ -133,7 +125,7 @@ int mfmmap(mFILE *mf, FILE *fp, const char *fn) {
     mf->data = mmap(NULL, mf->size, PROT_READ, MAP_SHARED,
                     fileno(fp), 0);
 
-    if (!mf->data || mf->data == (void *)-1)
+    if (!mf->data)
         return -1;
 
     mf->alloced = 0;
@@ -306,10 +298,6 @@ mFILE *mfreopen(const char *path, const char *mode_str, FILE *fp) {
 #endif
             if (!mf->data) {
                 mf->data = mfload(fp, path, &mf->size, b);
-                if (!mf->data) {
-                    free(mf);
-                    return NULL;
-                }
                 mf->alloced = mf->size;
                 if (!a)
                     fseek(fp, 0, SEEK_SET);

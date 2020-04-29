@@ -47,11 +47,7 @@
 #include <htslib/hts.h>
 #include <htslib/sam.h>
 
-#ifndef INT64_32_MAX
-#define INT64_32_MAX ((((int64_t)INT_MAX)<<32)|INT_MAX)
-#endif
-
-void reg_expected(sam_hdr_t *hdr, const char *reg, int flags,
+void reg_expected(bam_hdr_t *hdr, const char *reg, int flags,
                  char *reg_exp, int tid_exp, int64_t beg_exp, int64_t end_exp) {
     const char *reg_out;
     int tid_out = -1;
@@ -75,7 +71,7 @@ void reg_expected(sam_hdr_t *hdr, const char *reg, int flags,
 
 int reg_test(char *fn) {
     samFile *fp;
-    sam_hdr_t *hdr;
+    bam_hdr_t *hdr;
 
     if (!(fp = sam_open(fn, "r")))
         return 1;
@@ -91,26 +87,26 @@ int reg_test(char *fn) {
     // 5 chr1,chr3
 
     // Check range extensions.
-    reg_expected(hdr, "chr1", 0, "",  0, 0, INT64_32_MAX);
-    reg_expected(hdr, "chr1:50", 0, "",  0, 49, INT64_32_MAX);
+    reg_expected(hdr, "chr1", 0, "",  0, 0, INT64_MAX);
+    reg_expected(hdr, "chr1:50", 0, "",  0, 49, INT64_MAX);
     reg_expected(hdr, "chr1:50", HTS_PARSE_ONE_COORD, "",  0, 49, 50);
     reg_expected(hdr, "chr1:50-100", 0, "",  0, 49, 100);
-    reg_expected(hdr, "chr1:50-", 0, "",  0, 49, INT64_32_MAX);
+    reg_expected(hdr, "chr1:50-", 0, "",  0, 49, INT64_MAX);
     reg_expected(hdr, "chr1:-50", 0, "",  0, 0, 50);
 
     // Check quoting
     fprintf(stderr, "Expected error: ");
     reg_expected(hdr, "chr1:100-200", 0, NULL,  0, 0, 0); // ambiguous
     reg_expected(hdr, "{chr1}:100-200", 0, "",  0, 99, 200);
-    reg_expected(hdr, "{chr1:100-200}", 0, "",  2, 0, INT64_32_MAX);
+    reg_expected(hdr, "{chr1:100-200}", 0, "",  2, 0, INT64_MAX);
     reg_expected(hdr, "{chr1:100-200}:100-200", 0, "",  2, 99, 200);
     reg_expected(hdr, "{chr2:100-200}:100-200", 0, "",  3, 99, 200);
     reg_expected(hdr, "chr2:100-200:100-200", 0, "",  3, 99, 200);
-    reg_expected(hdr, "chr2:100-200", 0, "",  3, 0, INT64_32_MAX);
+    reg_expected(hdr, "chr2:100-200", 0, "",  3, 0, INT64_MAX);
 
     // Check numerics
-    reg_expected(hdr, "chr3", 0, "",  4, 0, INT64_32_MAX);
-    reg_expected(hdr, "chr3:", 0, "",  4, 0, INT64_32_MAX);
+    reg_expected(hdr, "chr3", 0, "",  4, 0, INT64_MAX);
+    reg_expected(hdr, "chr3:", 0, "",  4, 0, INT64_MAX);
     reg_expected(hdr, "chr3:1000-1500", 0, "",  4, 999, 1500);
     reg_expected(hdr, "chr3:1,000-1,500", 0, "",  4, 999, 1500);
     reg_expected(hdr, "chr3:1k-1.5K", 0, "",  4, 999, 1500);
@@ -118,11 +114,11 @@ int reg_test(char *fn) {
     reg_expected(hdr, "chr3:1e3-15e2", 0, "",  4, 999, 1500);
 
     // Check list mode
-    reg_expected(hdr, "chr1,chr3", HTS_PARSE_LIST, "chr3", 0, 0, INT64_32_MAX);
+    reg_expected(hdr, "chr1,chr3", HTS_PARSE_LIST, "chr3", 0, 0, INT64_MAX);
     fprintf(stderr, "Expected error: ");
     reg_expected(hdr, "chr1:100-200,chr3", HTS_PARSE_LIST, NULL,  0, 0, 0); // ambiguous
-    reg_expected(hdr, "{chr1,chr3}", HTS_PARSE_LIST, "", 5, 0, INT64_32_MAX);
-    reg_expected(hdr, "{chr1,chr3},chr1", HTS_PARSE_LIST, "chr1", 5, 0, INT64_32_MAX);
+    reg_expected(hdr, "{chr1,chr3}", HTS_PARSE_LIST, "", 5, 0, INT64_MAX);
+    reg_expected(hdr, "{chr1,chr3},chr1", HTS_PARSE_LIST, "chr1", 5, 0, INT64_MAX);
     // incorrect usage; first reg is valid (but not what user expects).
     reg_expected(hdr, "chr3:1,000-1,500", HTS_PARSE_LIST | HTS_PARSE_ONE_COORD, "000-1,500",  4, 0, 1);
 
@@ -140,14 +136,14 @@ int reg_test(char *fn) {
     fprintf(stderr, "Expected error: ");
     reg_expected(hdr, "chr1:1,chr3", 0, NULL, 0, 0, 0);
 
-    sam_hdr_destroy(hdr);
+    bam_hdr_destroy(hdr);
     sam_close(fp);
 
     exit(0);
 }
 
 int main(int argc, char **argv) {
-    sam_hdr_t *hdr;
+    bam_hdr_t *hdr;
     samFile *fp;
     int flags = 0;
 
@@ -201,7 +197,7 @@ int main(int argc, char **argv) {
                beg, end);
     }
 
-    sam_hdr_destroy(hdr);
+    bam_hdr_destroy(hdr);
     sam_close(fp);
 
     return 0;

@@ -28,8 +28,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef POOLED_ALLOC_H
-#define POOLED_ALLOC_H
+#ifndef _POOLED_ALLOC_H_
+#define _POOLED_ALLOC_H_
 
 #include <stddef.h>
 
@@ -63,4 +63,4 @@ void pool_free(pool_alloc_t *p, void *ptr);
 }
 #endif
 
-#endif /* POOLED_ALLOC_H */
+#endif /*_POOLED_ALLOC_H_*/

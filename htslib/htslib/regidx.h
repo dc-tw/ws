@@ -55,7 +55,6 @@
 
 #include <stdio.h>
 #include <inttypes.h>
-#include "hts.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,7 +63,7 @@ extern "C" {
 typedef struct _regidx_t regidx_t;
 typedef struct
 {
-    hts_pos_t start, end;
+    uint32_t start, end;
 }
 reg_t;
 typedef struct
@@ -126,7 +125,7 @@ void regidx_destroy(regidx_t *idx);
  *  Returns 0 if there is no overlap or 1 if overlap is found. The overlapping
  *  regions can be iterated as shown in the example above.
  */
-int regidx_overlap(regidx_t *idx, const char *chr, hts_pos_t start, hts_pos_t end, regitr_t *itr);
+int regidx_overlap(regidx_t *idx, const char *chr, uint32_t start, uint32_t end, regitr_t *itr);
 
 /*
  *  regidx_insert() - add a new region.
