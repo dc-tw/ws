@@ -307,7 +307,7 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
         
         //print_status("start popping B-variants\n");
         bisulfite_node_t *s;
-        while (s = bisulfite_heap_pop(h), s != NULL)
+        while (s = bisulfite_heap_pop(h), s != NULL && h->len != 0)
         {
             //bisulfite_heap_pop(node);//node = heap.pop();//也許要記錄which variant
             if(s->priority<0)break;
@@ -335,6 +335,7 @@ double calc_prob_region_bisulfite(vector_t *var_set, double *matrix, int read_le
         p[i - start] = calc_read_prob_bisulfite(var_set, matrix, read_length, seq, seq_length, i, seqnt_map, alt);
         if(max < p[i - start])max = p[i - start];
     }
+    print_status("end calc prob region\n");
     return max;
     //maybe also return the picked canadidates?
     //return log_sum_exp(p, end - start);
@@ -373,6 +374,7 @@ double calc_prob_bisulfite(vector_t *var_set, double *matrix, int read_length, c
             r_pos = splice_pos[i] + 1;
         }
     }
+    print_status("end calc prob\n");
     return probability;
 }
 

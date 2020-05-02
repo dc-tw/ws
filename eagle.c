@@ -716,6 +716,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
     /* Aligned reads */
     for (readi = 0; readi < nreads; readi++)
     {
+        print_status("round start\n");
         /*if (read_data[readi]->pos > var_data[stat->combo->data[0]]->pos || 
             read_data[readi]->end < var_data[stat->combo->data[stat->combo->len - 1]]->pos)
         { // read must cross all variants in current combo
@@ -858,6 +859,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         }
 
         /* Mixture model: probability that the read is from elsewhere, outside paralogous source */
+        print_status("pout\n");
         pout += lgomega;
         prgu1[0] = log_add_exp(pout, prgu1[0]);
         prgv1[0] = log_add_exp(pout, prgv1[0]);
@@ -881,6 +883,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
             phet = phet90;
 
         /* Priors */
+        print_status("prior\n");
         prgu1[0] += ref_prior;
         prgv1[0] += alt_prior - log_nv;
         phet += het_prior - log_nv;
@@ -889,6 +892,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         stat->het += phet;
 
         vector_double_add(stat->read_prgv, log_add_exp(prgv1[0], phet));//這邊放score?
+        print_status("vector double add\n");
 
         /* Read count incremented only when the difference in probability is not ambiguous, > ~log(2) difference and more likely than pout */
         if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
@@ -922,6 +926,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         }
         //free(readprobmatrix); free(readprobmatrix2);
     }
+    print_status("free new refs\n");
     stat->mut = log_add_exp(stat->alt, stat->het);
     free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
     //altseq = NULL;
