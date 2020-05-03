@@ -62,6 +62,12 @@ static int dp, gap_op, gap_ex;
 static int rc;
 static double ref_prior, alt_prior, het_prior;
 
+/*----------*/
+samFile *b_sam_in;
+bam_hdr_t *b_bam_header;
+hts_idx_t *b_bam_idx;
+/*----------*/
+
 /* Time info */
 static time_t now;
 static struct tm *time_info;
@@ -167,7 +173,7 @@ static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1
     /* Reads in region coordinates */
     vector_t *read_list = vector_create(256, READ_T);
 
-    print_status("sam open\n");
+    /*print_status("sam open\n");
     samFile *sam_in = sam_open(bam_file, "r"); // open bam file
     if (sam_in == NULL)
     {
@@ -184,18 +190,18 @@ static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1
     if (bam_idx == NULL)
     {
         exit_err("failed to open BAM index %s\n", bam_file);
-    }
+    }*/
 
     print_status("bam_name2id\n");
-    int tid = bam_name2id(bam_header, chr);
+    int tid = bam_name2id(b_bam_header, chr);
     print_status("sam_itr_queryi\n");
-    hts_itr_t *iter = sam_itr_queryi(bam_idx, tid, pos1 - 1, pos2); // read iterator
+    hts_itr_t *iter = sam_itr_queryi(b_bam_idx, tid, pos1 - 1, pos2); // read iterator
     if (iter != NULL)
     {
         bam1_t *aln = bam_init1(); // initialize an alignment
-        while (sam_itr_next(sam_in, iter, aln) >= 0)
+        while (sam_itr_next(b_sam_in, iter, aln) >= 0)
         {
-            read_t *read = read_fetch(bam_header, aln, pao, isc, nodup, splice, phred64, const_qual);
+            read_t *read = read_fetch(b_bam_header, aln, pao, isc, nodup, splice, phred64, const_qual);
             if (read != NULL)
                 vector_add(read_list, read);
         }
@@ -203,9 +209,9 @@ static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1
     }
     print_status("usage destroy\n");
     hts_itr_destroy(iter);
-    hts_idx_destroy(bam_idx);
-    bam_hdr_destroy(bam_header);
-    sam_close(sam_in);
+    //hts_idx_destroy(bam_idx);
+    //bam_hdr_destroy(bam_header);
+    //sam_close(sam_in);
     return read_list;
 }
 
@@ -1588,6 +1594,8 @@ static void print_usage()
     printf("     --version         Display version.\n");
 }
 
+
+
 int main(int argc, char **argv)
 {
     /* Command line parameters defaults */
@@ -1776,6 +1784,10 @@ int main(int argc, char **argv)
 
     init_seqnt_map(seqnt_map);
     init_q2p_table(p_match, p_mismatch, 50);
+
+    b_sam_in = sam_open(bam_file, "r");
+    b_bam_header = sam_hdr_read(b_sam_in);
+    b_bam_idx = sam_index_load(b_sam_in);
 
     /* Start processing data */
     clock_t tic = clock();
