@@ -1787,7 +1787,7 @@ int main(int argc, char **argv)
 
     b_sam_in = sam_open(bam_file, "r");
     b_bam_header = sam_hdr_read(b_sam_in);
-    b_bam_idx = sam_index_load(b_sam_in);
+    b_bam_idx = sam_index_load(b_sam_in, bam_file);
 
     /* Start processing data */
     clock_t tic = clock();
