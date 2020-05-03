@@ -332,7 +332,7 @@ const char *sam_parse_region(bam_hdr_t *h, const char *s, int *tid, int64_t *beg
 
 bam1_t *bam_init1()
 {
-    return (bam1_t*)calloc(1, sizeof(bam1_t));
+    return (bam1_t*)calloc(16, sizeof(bam1_t));
 }
 
 static int do_realloc_bam_data(bam1_t *b, size_t desired)

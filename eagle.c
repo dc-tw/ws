@@ -1363,10 +1363,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
 
     /*---------*/
     //print_status("start picking C\n");
-    //variant_t **var_data = (variant_t **)var_list->data;
-    //char tmp[] = "chrM";
-    /*fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
-    //variant_t *v;
+    fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
     if (f == NULL)
         return NULL;
     char *refseq = f->seq;
@@ -1383,7 +1380,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     }
     var_data = (variant_t **)var_list->data;
     qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
-    for(count=0; count<var_list->len; ++count)var_data[count]->chr = var_data[0]->chr;*/
+    for(count=0; count<var_list->len; ++count)var_data[count]->chr = var_data[0]->chr;
     /*---------*/
     print_status("new var_list->len = %d(After add all C)\n", var_list->len);
 
