@@ -322,7 +322,7 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
 
 double calc_prob_region_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, int pos, int start, int end, int *seqnt_map, int alt) {
     //這一層是所有起點
-    print_status("calc prob region\n");
+    //print_status("calc prob region\n");
     if (start < 0) start = 0;
     else if (start >= seq_length) start = seq_length - 1;
     if (end < 0) end = 0;
@@ -335,7 +335,7 @@ double calc_prob_region_bisulfite(vector_t *var_set, double *matrix, int read_le
         p[i - start] = calc_read_prob_bisulfite(var_set, matrix, read_length, seq, seq_length, i, seqnt_map, alt);
         if(max < p[i - start])max = p[i - start];
     }
-    print_status("end calc prob region\n");
+    //print_status("end calc prob region\n");
     return max;
     //maybe also return the picked canadidates?
     //return log_sum_exp(p, end - start);
@@ -346,7 +346,7 @@ read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_of
 //這層處理splice
 double calc_prob_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, int pos, int *splice_pos, int *splice_offset, int n_splice, int *seqnt_map, int alt) {
     /* Get the sequence g in G and its neighborhood (half a read length flanking regions) */
-    print_status("calc prob\n");
+    //print_status("calc prob\n");
     int start = pos - (read_length / 2);
     int end = pos + (read_length / 2);
 
@@ -374,7 +374,7 @@ double calc_prob_bisulfite(vector_t *var_set, double *matrix, int read_length, c
             r_pos = splice_pos[i] + 1;
         }
     }
-    print_status("end calc prob\n");
+    //print_status("end calc prob\n");
     return probability;
 }
 
