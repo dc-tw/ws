@@ -765,7 +765,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         double a = sum_d(is_match, read_data[readi]->length);
         double elsewhere = log_add_exp(a, a + log_sum_exp(delta, read_data[readi]->length)) - (LGALPHA * (read_data[readi]->length - read_data[readi]->inferred_length));
 
-        //print_status("starting calculate read No.%d\n", readi);
+        //print_status("starting calculate read No.%d v=%d\n", readi, var_data[0]->pos);
         double prgu1[4], prgv1[4], prgu2[4], prgv2[4];
         /*---------------------*/
         prgu1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
@@ -818,6 +818,8 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         //free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
         
         /*---------------------*/
+        prgu1[0] = prgu1[0]+prgu1[1]+prgu1[2]+prgu1[3]+prgu2[0]+prgu2[1]+prgu2[2]+prgu2[3];
+        prgv1[0] = prgv1[0]+prgv1[1]+prgv1[2]+prgv1[3]+prgv2[0]+prgv2[1]+prgv2[2]+prgv2[3];
         double pout = elsewhere;
 
         /* Multi-map alignments from XA tags: chr8,+42860367,97M3S,3;chr9,-44165038,100M,4; */
@@ -897,7 +899,12 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         stat->alt += prgv1[0];
         stat->het += phet;
 
-        vector_double_add(stat->read_prgv, log_add_exp(prgv1[0], phet));//這邊放score?
+        if(prgv1[0]<0 && readi!=0){
+            vector_double_del(stat->read_prgv, stat->read_prgv->len - 1);
+        }
+        else{
+            vector_double_add(stat->read_prgv, log_add_exp(prgv1[0], phet));//這邊放score?
+        }
         print_status("vector double add\n");
 
         /* Read count incremented only when the difference in probability is not ambiguous, > ~log(2) difference and more likely than pout */

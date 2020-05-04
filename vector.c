@@ -17,7 +17,7 @@ void vector_init(vector_t *a, size_t initial_size, enum type var_type) {
     a->len = 0;
     a->type = var_type;
     a->size = initial_size;
-    a->data = malloc(initial_size * sizeof (void *) + 1);
+    a->data = malloc(initial_size * sizeof (void *));
 }
 
 vector_t *vector_create(size_t initial_size, enum type var_type) {
@@ -65,7 +65,7 @@ void vector_destroy(vector_t *a) {
 void vector_add(vector_t *a, void *entry) {
     if (a->len >= a->size) {
         a->size *= 2;
-        void **p = realloc(a->data, a->size * sizeof (void *) + 1);
+        void **p = realloc(a->data, a->size * sizeof (void *));
         if (p == NULL) { exit_err("failed to realloc in vector_add\n"); }
         else { a->data = p; }
     }
