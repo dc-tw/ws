@@ -106,7 +106,7 @@ void bisulfite_heap_init(bisulfite_heap_t *a, enum type var_type) {
     a->len = 0;
     a->size = 4;
     a->type = var_type;
-    a->node = malloc(4 * sizeof (bisulfite_node_t));
+    a->node = malloc(4 * sizeof (bisulfite_node_t)+1);
 }
 
 bisulfite_heap_t *bisulfite_heap_create(enum type var_type) {
@@ -150,7 +150,7 @@ void bisulfite_heap_destroy(bisulfite_heap_t *a) {
 void bisulfite_heap_push(bisulfite_heap_t *a, double priority, int pos, void *data) {
     if (a->len + 1 >= a->size) {
         a->size *= 2;
-        bisulfite_node_t *p = realloc(a->node, a->size * sizeof (bisulfite_node_t));
+        bisulfite_node_t *p = realloc(a->node, a->size * sizeof (bisulfite_node_t)+1);
         if (p == NULL) { exit_err("failed to realloc in heap_push\n"); }
         else { a->node = p; }
     }
