@@ -278,7 +278,7 @@ void region_destroy(region_t *g) {
 }
 
 stats_t *stats_create(vector_int_t *combo, int nreads) {
-    stats_t *s = malloc(sizeof (stats_t));
+    stats_t *s = malloc(sizeof (stats_t) * 2);
     s->combo = combo;
     s->read_prgv = vector_double_create(nreads);
     s->ref = 0;

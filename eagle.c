@@ -1825,7 +1825,7 @@ int main(int argc, char **argv)
         }
     }
     kh_destroy(rsh, refseq_hash);
-    vector_destroy(var_list);
+    //vector_destroy(var_list);
     free(var_list);
     var_list = NULL;
 
