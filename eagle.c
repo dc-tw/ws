@@ -1383,8 +1383,8 @@ static void process(const vector_t *var_list, FILE *out_fh)
     int refseq_length = f->seq_length;
     int count;
     char *tmp = var_data[0]->chr;
-    //for(count = 0; count<refseq_length; ++count){
-    for(count = 0; count<100; ++count){
+    for(count = 0; count<refseq_length; ++count){
+    //for(count = 0; count<100; ++count){
         if(refseq[count]=='C'){
             variant_t *v = variant_create(var_data[0]->chr, count, "C", "T");
             //v->chr = tmp;
