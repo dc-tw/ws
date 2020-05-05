@@ -907,12 +907,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         else if (prgu1[0] > prgv1[0] && prgu1[0] - prgv1[0] > 0.69 && prgu1[0] - pout > 0.69)
             stat->ref_count += 1;*/
 
-        if(prgv1[0]<0 && readi!=0){
-            vector_double_del(stat->read_prgv, stat->read_prgv->len - 1);
-        }
-        else{
-            vector_double_add(stat->read_prgv, log_add_exp(prgv1[0], phet));//這邊放score?
-        }
+        vector_double_add(stat->read_prgv, log_add_exp(prgv1[0], phet));//這邊放score?
         print_status("vector double add\n");
 
         /* Read count incremented only when the difference in probability is not ambiguous, > ~log(2) difference and more likely than pout */
@@ -920,6 +915,10 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
             stat->alt_count += 1;
         else if (prgu1[0] > prgv1[0] && prgu1[0] - prgv1[0] > 0.69 && prgu1[0] - pout > 0.69)
             stat->ref_count += 1;
+        if(prgv1[0]<0 && readi!=0){
+            vector_double_del(stat->read_prgv, stat->read_prgv->len - 1);
+            vector_double_del(stat->read_prgv, stat->read_prgv->len - 1);
+        }
 
         if (debug >= 2)
         {
