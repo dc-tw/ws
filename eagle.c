@@ -678,6 +678,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         default:
             break;
         }
+        if(!new_refseq3[counter+1])break;
     }
     for(counter=0; counter<refseq_length; ++counter){
         switch (new_refseq4[counter])
@@ -703,6 +704,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         default:
             break;
         }
+        if(!new_refseq4[counter+1])break;
     }
 
     /*if (!lowmem)
@@ -900,10 +902,10 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         stat->alt += prgv1[0];
         stat->het += phet;
 
-        if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
+        /*if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
             stat->alt_count += 1;
         else if (prgu1[0] > prgv1[0] && prgu1[0] - prgv1[0] > 0.69 && prgu1[0] - pout > 0.69)
-            stat->ref_count += 1;
+            stat->ref_count += 1;*/
 
         if(prgv1[0]<0 && readi!=0){
             vector_double_del(stat->read_prgv, stat->read_prgv->len - 1);
@@ -914,10 +916,10 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         print_status("vector double add\n");
 
         /* Read count incremented only when the difference in probability is not ambiguous, > ~log(2) difference and more likely than pout */
-        /*if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
+        if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
             stat->alt_count += 1;
         else if (prgu1[0] > prgv1[0] && prgu1[0] - prgv1[0] > 0.69 && prgu1[0] - pout > 0.69)
-            stat->ref_count += 1;*/
+            stat->ref_count += 1;
 
         if (debug >= 2)
         {
@@ -1388,17 +1390,17 @@ static void process(const vector_t *var_list, FILE *out_fh)
     char *refseq = f->seq;
     int refseq_length = f->seq_length;
     int count;
-    char *tmp = var_data[0]->chr;
+    char *tmp = strdup(var_data[0]->chr);
     for(count = 0; count<refseq_length; ++count){
     //for(count = 0; count<100; ++count){
         if(refseq[count]=='C'){
             variant_t *v = variant_create(var_data[0]->chr, count, "C", "T");
-            //v->chr = tmp;
+            v->chr = tmp;
             vector_add(var_list, v);
         }
     }
     var_data = (variant_t **)var_list->data;
-    qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
+    //qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
     for(count=0; count<var_list->len; ++count)var_data[count]->chr = var_data[0]->chr;
     /*---------*/
     print_status("new var_list->len = %d(After add all C)\n", var_list->len);
