@@ -818,6 +818,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         //free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
         
         /*---------------------*/
+        print_status("merge prgu & prgv\n");
         prgu1[0] = prgu1[0]+prgu1[1]+prgu1[2]+prgu1[3]+prgu2[0]+prgu2[1]+prgu2[2]+prgu2[3];
         prgv1[0] = prgv1[0]+prgv1[1]+prgv1[2]+prgv1[3]+prgv2[0]+prgv2[1]+prgv2[2]+prgv2[3];
         double pout = elsewhere;
@@ -899,6 +900,11 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         stat->alt += prgv1[0];
         stat->het += phet;
 
+        if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
+            stat->alt_count += 1;
+        else if (prgu1[0] > prgv1[0] && prgu1[0] - prgv1[0] > 0.69 && prgu1[0] - pout > 0.69)
+            stat->ref_count += 1;
+
         if(prgv1[0]<0 && readi!=0){
             vector_double_del(stat->read_prgv, stat->read_prgv->len - 1);
         }
@@ -908,10 +914,10 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         print_status("vector double add\n");
 
         /* Read count incremented only when the difference in probability is not ambiguous, > ~log(2) difference and more likely than pout */
-        if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
+        /*if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
             stat->alt_count += 1;
         else if (prgu1[0] > prgv1[0] && prgu1[0] - prgv1[0] > 0.69 && prgu1[0] - pout > 0.69)
-            stat->ref_count += 1;
+            stat->ref_count += 1;*/
 
         if (debug >= 2)
         {

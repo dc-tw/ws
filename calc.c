@@ -346,7 +346,7 @@ read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_of
 //這層處理splice
 double calc_prob_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, int pos, int *splice_pos, int *splice_offset, int n_splice, int *seqnt_map, int alt) {
     /* Get the sequence g in G and its neighborhood (half a read length flanking regions) */
-    //print_status("calc prob\n");
+    print_status("calc prob\n");
     int start = pos - (read_length / 2);
     int end = pos + (read_length / 2);
 
@@ -374,7 +374,7 @@ double calc_prob_bisulfite(vector_t *var_set, double *matrix, int read_length, c
             r_pos = splice_pos[i] + 1;
         }
     }
-    //print_status("end calc prob\n");
+    print_status("end calc prob\n");
     return probability;
 }
 
