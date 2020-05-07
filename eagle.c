@@ -729,7 +729,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
     {
         print_status("round start\n");
         if (read_data[readi]->pos > var_set[0]->pos || 
-            read_data[readi]->end < var_set[var_set->len - 1]]->pos)
+            read_data[readi]->end < var_set[0]->pos)
         { // read must cross all variants in current combo
             vector_double_add(stat->read_prgv, -DBL_MAX);
             continue; // read must cross all variants in current combo
