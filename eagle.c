@@ -1075,7 +1075,7 @@ static char *evaluate(vector_t *var_set)
             vector_t *v = vector_create(var_set->len, VARIANT_T);
             for (i = 0; i < stat[max_seti]->combo->len; i++)
                 vector_add(v, var_data[stat[max_seti]->combo->data[i]]);
-            variant_print(&output, v, 0, stat[max_seti]->seen, stat[max_seti]->ref_count, stat[max_seti]->alt_count, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
+            variant_print(&output, v, 0, stat[max_seti]->seen+alt_tmp+ref_tmp, stat[max_seti]->ref_count+ref_tmp, stat[max_seti]->alt_count+alt_tmp, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
             vector_free(v); //variants in var_list so don't destroy
         }
         else
@@ -1115,7 +1115,7 @@ static char *evaluate(vector_t *var_set)
                     else
                         not_alt = log_add_exp(not_alt, prhap->data[seti]);
                 }
-                variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
+                variant_print(&output, var_set, i, seen, rcount+ref_tmp, acount+alt_tmp, total, has_alt, not_alt);
             }
         }
         print_status("free data\n");
