@@ -1277,6 +1277,7 @@ static char *evaluate(vector_t *var_set)
             }
             //variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
             variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total, has_alt, not_alt);
+            printf("line 1280\n");
         }
     }
 
