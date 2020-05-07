@@ -1247,7 +1247,7 @@ static char *evaluate(vector_t *var_set)
             int acount = -1;
             int rcount = -1;
             int seen = -1;
-            /*for (seti = 0; seti < stats->len; seti++)
+            for (seti = 0; seti < stats->len; seti++)
             {
                 if (variant_find(stat[seti]->combo, i) != -1)
                 { // if variant is in this combination
@@ -1274,7 +1274,7 @@ static char *evaluate(vector_t *var_set)
                     has_alt = log_add_exp(has_alt, prhap->data[seti]);
                 else
                     not_alt = log_add_exp(not_alt, prhap->data[seti]);
-            }*/
+            }
             //variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
             variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total, has_alt, not_alt);
         }
