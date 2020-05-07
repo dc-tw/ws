@@ -608,7 +608,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
     stat->alt_count = 0;
     stat->seen = 0;
     
-    alt_tmp=0;ref_tmp=0;
+    //alt_tmp=0;ref_tmp=0;
 
     variant_t **var_data = (variant_t **)var_set->data;
     double log_nv = log((double)var_set->len);
@@ -1062,7 +1062,7 @@ static char *evaluate(vector_t *var_set)
             vector_t *v = vector_create(var_set->len, VARIANT_T);
             for (i = 0; i < stat[max_seti]->combo->len; i++)
                 vector_add(v, var_data[stat[max_seti]->combo->data[i]]);
-            variant_print(&output, v, 0, stat[max_seti]->seen+alt_tmp, stat[max_seti]->ref_count, stat[max_seti]->alt_count+alt_tmp, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
+            variant_print(&output, v, 0, stat[max_seti]->seen, stat[max_seti]->ref_count, stat[max_seti]->alt_count, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
             vector_free(v); //variants in var_list so don't destroy
         }
         else
