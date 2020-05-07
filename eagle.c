@@ -66,6 +66,7 @@ static double ref_prior, alt_prior, het_prior;
 samFile *b_sam_in;
 bam_hdr_t *b_bam_header;
 hts_idx_t *b_bam_idx;
+int ref_tmp, alt_tmp;
 /*----------*/
 
 /* Time info */
@@ -606,6 +607,8 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
     stat->ref_count = 0;
     stat->alt_count = 0;
     stat->seen = 0;
+    
+    alt_tmp=0;ref_tmp=0;
 
     variant_t **var_data = (variant_t **)var_set->data;
     double log_nv = log((double)var_set->len);
@@ -918,6 +921,10 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         if(prgv1[0]<0 && readi!=0){
             vector_double_del(stat->read_prgv, stat->read_prgv->len - 1);
             vector_double_del(stat->read_prgv, stat->read_prgv->len - 1);
+            if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
+                ++alt_tmp;
+            else if (prgu1[0] > prgv1[0] && prgu1[0] - prgv1[0] > 0.69 && prgu1[0] - pout > 0.69)
+                ++ref_tmp;
         }
 
         if (debug >= 2)
