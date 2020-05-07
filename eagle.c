@@ -728,13 +728,13 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
     for (readi = 0; readi < nreads; readi++)
     {
         print_status("round start\n");
-        /*if (read_data[readi]->pos > var_data[stat->combo->data[0]]->pos || 
-            read_data[readi]->end < var_data[stat->combo->data[stat->combo->len - 1]]->pos)
+        if (read_data[readi]->pos > var_data[0]->pos || 
+            read_data[readi]->end < var_data[var_data->len - 1]]->pos)
         { // read must cross all variants in current combo
             vector_double_add(stat->read_prgv, -DBL_MAX);
             continue; // read must cross all variants in current combo
-        }*/
-        vector_double_add(stat->read_prgv, -DBL_MAX);
+        }
+        //vector_double_add(stat->read_prgv, -DBL_MAX);
         stat->seen++;
 
         double is_match[read_data[readi]->length], no_match[read_data[readi]->length];
@@ -918,14 +918,14 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
             stat->alt_count += 1;
         else if (prgu1[0] > prgv1[0] && prgu1[0] - prgv1[0] > 0.69 && prgu1[0] - pout > 0.69)
             stat->ref_count += 1;
-        if(prgv1[0]<0 && readi!=0){
+        /*if(prgv1[0]<0 && readi!=0){
             vector_double_del(stat->read_prgv, stat->read_prgv->len - 1);
             vector_double_del(stat->read_prgv, stat->read_prgv->len - 1);
             if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
                 ++alt_tmp;
             else if (prgu1[0] > prgv1[0] && prgu1[0] - prgv1[0] > 0.69 && prgu1[0] - pout > 0.69)
                 ++ref_tmp;
-        }
+        }*/
 
         if (debug >= 2)
         {
@@ -1075,7 +1075,7 @@ static char *evaluate(vector_t *var_set)
             vector_t *v = vector_create(var_set->len, VARIANT_T);
             for (i = 0; i < stat[max_seti]->combo->len; i++)
                 vector_add(v, var_data[stat[max_seti]->combo->data[i]]);
-            variant_print(&output, v, 0, stat[max_seti]->seen+alt_tmp+ref_tmp, stat[max_seti]->ref_count+ref_tmp, stat[max_seti]->alt_count+alt_tmp, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
+            variant_print(&output, v, 0, stat[max_seti]->seen+alt_tmp, stat[max_seti]->ref_count, stat[max_seti]->alt_count+alt_tmp, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
             vector_free(v); //variants in var_list so don't destroy
         }
         else
@@ -1115,7 +1115,7 @@ static char *evaluate(vector_t *var_set)
                     else
                         not_alt = log_add_exp(not_alt, prhap->data[seti]);
                 }
-                variant_print(&output, var_set, i, seen, rcount+ref_tmp, acount+alt_tmp, total, has_alt, not_alt);
+                variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
             }
         }
         print_status("free data\n");
