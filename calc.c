@@ -331,14 +331,14 @@ double calc_prob_region_bisulfite(vector_t *var_set, double *matrix, int read_le
     int i;
     double p[end - start];
     double max = 0;
-    for (i = start; i < end; i++) {//for each start position, do the calculation in lower floor
+    /*for (i = start; i < end; i++) {//for each start position, do the calculation in lower floor
         p[i - start] = calc_read_prob_bisulfite(var_set, matrix, read_length, seq, seq_length, i, seqnt_map, alt);
         if(max < p[i - start])max = p[i - start];
-    }
+    }*/
     //print_status("end calc prob region\n");
     return max;
     //maybe also return the picked canadidates?
-    //return log_sum_exp(p, end - start);
+    return log_sum_exp(p, end - start);
 }
 
 /*calc_prob_bisulfite(readprobmatrix, read_data[readi]->length, refseq, refseq_length, 
