@@ -829,7 +829,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         double pout = elsewhere;
 
         /* Multi-map alignments from XA tags: chr8,+42860367,97M3S,3;chr9,-44165038,100M,4; */
-        /*if (read_data[readi]->multimapXA != NULL)
+        if (read_data[readi]->multimapXA != NULL)
         {
             int xa_pos, n;
             char *s, xa_chr[strlen(read_data[readi]->multimapXA) + 1];
@@ -853,7 +853,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
                     }
 
                     xa_pos = abs(xa_pos);
-                    double readprobability = calc_prob(p_readprobmatrix, read_data[readi]->length, xa_refseq, xa_refseq_length, xa_pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map);
+                    double readprobability = calc_prob_bisulfite(p_readprobmatrix, read_data[readi]->length, xa_refseq, xa_refseq_length, xa_pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map);
                     prgu1[0] = log_add_exp(prgu1[0], readprobability);
                     prgv1[0] = log_add_exp(prgv1[0], readprobability);
                     free(newreadprobmatrix);
@@ -862,7 +862,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
                 if (*(s + n) != ';')
                     break;
             }
-        }*/
+        }
         if (read_data[readi]->multimapNH > 1)
         { // scale by the number of multimap positions
             double n = log(read_data[readi]->multimapNH - 1);
