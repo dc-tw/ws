@@ -1784,8 +1784,8 @@ int main(int argc, char **argv)
 
     /* Start processing data */
     clock_t tic = clock();
-    //vector_t *var_list = vcf_read(vcf_fh);
-    vector_t *var_list = vector_create(8, VARIANT_T);
+    vector_t *var_list = vcf_read(vcf_fh);
+    //vector_t *var_list = vector_create(8, VARIANT_T);
     print_status("# Read VCF: %s\t%i entries\t%s", vcf_file, (int)var_list->len, asctime(time_info));
 
     
