@@ -1374,14 +1374,14 @@ static void process(const vector_t *var_list, FILE *out_fh)
     for(count = 0; count<refseq_length; ++count){
     //for(count = 0; count<100; ++count){
         if(refseq[count]=='C'){
-            variant_t *v = variant_create(tmp, count, "c", "t");
+            variant_t *v = variant_create(var_data[0]->chr, count, "c", "t");
             v->chr = tmp;
             vector_add(var_list, v);
         }
     }
     var_data = (variant_t **)var_list->data;
     //qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
-    for(count=0; count<var_list->len; ++count)var_data[count]->chr = tmp;
+    //for(count=0; count<var_list->len; ++count)var_data[count]->chr = tmp;
     /*---------*/
     print_status("new var_list->len = %d(After add all C)\n", var_list->len);
 
