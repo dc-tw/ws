@@ -206,7 +206,7 @@ static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1
         while (sam_itr_next(sam_in, iter, aln) >= 0)
         {
             //read_t *read = read_fetch(bam_header, aln, pao, isc, nodup, splice, phred64, const_qual);
-            read_t *read = read_fetch(b_bam_header, aln, pao, isc, nodup, splice, phred64, const_qual);
+            read_t *read = read_fetch(bam_header, aln, pao, isc, nodup, splice, phred64, const_qual);
             if (read != NULL)
                 vector_add(read_list, read);
         }
