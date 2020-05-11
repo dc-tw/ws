@@ -336,7 +336,7 @@ double calc_prob_region_bisulfite(vector_t *var_set, double *matrix, int read_le
         if(max < p[i - start])max = p[i - start];
     }*/
     //print_status("end calc prob region\n");
-    return max;
+    //return max;
     //maybe also return the picked canadidates?
     return log_sum_exp(p, end - start);
 }
