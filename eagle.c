@@ -1367,18 +1367,19 @@ static void process(const vector_t *var_list, FILE *out_fh)
 
     /*---------*/
     //print_status("start picking C\n");
-    fasta_t *f = refseq_fetch(var_data[0]->chr, fa_file);
+    char *tmp = "chrM";
+    fasta_t *f = refseq_fetch(tmp, fa_file);
     if (f == NULL)
         return NULL;
     char *refseq = f->seq;
     int refseq_length = f->seq_length;
     int count;
-    char *tmp = strdup(var_data[0]->chr);
+    //char *tmp = strdup(var_data[0]->chr);
     //char *tmp = "chrM";
     for(count = 0; count<refseq_length; ++count){
     //for(count = 0; count<100; ++count){
         if(refseq[count]=='C'){
-            variant_t *v = variant_create(var_data[0]->chr, count, "c", "t");
+            variant_t *v = variant_create(tmp, count, "c", "t");
             v->chr = tmp;
             vector_add(var_list, v);
         }
