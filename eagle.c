@@ -98,6 +98,9 @@ static vector_t *vcf_read(FILE *file)
         int pos;
         char chr[line_length], ref[line_length], alt[line_length];
         int t = sscanf(line, "%s %d %*[^\t] %s %s", chr, &pos, ref, alt);
+
+        if(chr[1]!=NULL)continue;
+
         if (t < 4 || has_numbers(ref) || has_numbers(alt))
         {
             exit_err("bad fields in VCF file\n%s\n", line);
@@ -1370,7 +1373,8 @@ static void process(const vector_t *var_list, FILE *out_fh)
     char *refseq = f->seq;
     int refseq_length = f->seq_length;
     int count;
-    char *tmp = strdup(var_data[0]->chr);
+    //char *tmp = strdup(var_data[0]->chr);
+    char *tmp = "chrM";
     for(count = 0; count<refseq_length; ++count){
     //for(count = 0; count<100; ++count){
         if(refseq[count]=='C'){
