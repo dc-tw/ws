@@ -734,7 +734,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
     /* Aligned reads */
     for (readi = 0; readi < nreads; readi++)
     {
-        print_status("round start\n");
+        //print_status("round start\n");
         if (read_data[readi]->pos > var_data[0]->pos || 
             read_data[readi]->end < var_data[var_set->len-1]->pos)
         { // read must cross all variants in current combo
@@ -777,7 +777,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         double a = sum_d(is_match, read_data[readi]->length);
         double elsewhere = log_add_exp(a, a + log_sum_exp(delta, read_data[readi]->length)) - (LGALPHA * (read_data[readi]->length - read_data[readi]->inferred_length));
 
-        print_status("starting calculate read No.%d v=%d\n", readi, var_data[0]->pos);
+        //print_status("starting calculate read No.%d v=%d\n", readi, var_data[0]->pos);
         double prgu1[4], prgv1[4], prgu2[4], prgv2[4];
         /*---------------------*/
         prgu1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
@@ -830,7 +830,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         //free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
         
         /*---------------------*/
-        print_status("merge prgu & prgv\n");
+        //print_status("merge prgu & prgv\n");
         prgu1[0] = prgu1[0]+prgu1[1]+prgu1[2]+prgu1[3]+prgu2[0]+prgu2[1]+prgu2[2]+prgu2[3];
         prgv1[0] = prgv1[0]+prgv1[1]+prgv1[2]+prgv1[3]+prgv2[0]+prgv2[1]+prgv2[2]+prgv2[3];
         double pout = elsewhere;
@@ -880,7 +880,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         }
 
         /* Mixture model: probability that the read is from elsewhere, outside paralogous source */
-        print_status("pout\n");
+        //print_status("pout\n");
         pout += lgomega;
         prgu1[0] = log_add_exp(pout, prgu1[0]);
         prgv1[0] = log_add_exp(pout, prgv1[0]);
@@ -904,7 +904,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
             phet = phet90;
 
         /* Priors */
-        print_status("prior\n");
+        //print_status("prior\n");
         prgu1[0] += ref_prior;
         prgv1[0] += alt_prior - log_nv;
         phet += het_prior - log_nv;
@@ -913,7 +913,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         stat->het += phet;
 
         vector_double_add(stat->read_prgv, log_add_exp(prgv1[0], phet));//這邊放score?
-        print_status("vector double add\n");
+        //print_status("vector double add\n");
 
         /* Read count incremented only when the difference in probability is not ambiguous, > ~log(2) difference and more likely than pout */
         if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
@@ -947,7 +947,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         }
         //free(readprobmatrix); free(readprobmatrix2);
     }
-    print_status("free new refs\n");
+    //print_status("free new refs\n");
     stat->mut = log_add_exp(stat->alt, stat->het);
     free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
     //altseq = NULL;
@@ -986,23 +986,23 @@ static char *evaluate(vector_t *var_set)
         vector_destroy(read_list);
         free(read_list);
         read_list = NULL;
-        print_status("readlist->len == 0\n");
+        //print_status("readlist->len == 0\n");
         return NULL;
     }
     read_t **read_data = (read_t **)read_list->data;
 
     int methylation = 1;
-    print_status("goto methylation\n");
+    //print_status("goto methylation\n");
     if(methylation){
         vector_t *stats = vector_create(var_set->len + 1, STATS_T);
         stats_t *s = stats_create((vector_int_t *)var_set->data[seti], read_list->len);
         //vector_add(stats, s);
-        print_status("start calc_likelihood\n");
+        //print_status("start calc_likelihood\n");
         calc_likelihood_bisulfite(s, var_set, refseq, refseq_length, read_data, read_list->len, readi, seqnt_map);
         vector_add(stats, s);
 
         stats_t **stat = (stats_t **)stats->data;
-        print_status("probablility model\n");
+        //print_status("probablility model\n");
         
         int c[read_list->len];//int c[stats->len];
         memset(c, 0, sizeof(c));
@@ -1090,10 +1090,11 @@ static char *evaluate(vector_t *var_set)
                     not_alt = log_add_exp(not_alt, prhap->data[seti]);
             }*/
             //variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
-            variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total, has_alt, not_alt);
+            //variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total, has_alt, not_alt);
+            variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total/stats->len, has_alt, not_alt);
         }
         
-        print_status("free data\n");
+        //print_status("free data\n");
         for (i = 0; i < combo->len; i++)
         vector_int_free(combo->data[i]);
         vector_free(combo); //not destroyed because previously vector_int_free all elements
@@ -1324,7 +1325,7 @@ typedef struct
 
 static void *pool(void *work)
 {
-    print_status("start pooling\n");
+    //print_status("start pooling\n");
     work_t *w = (work_t *)work;
 
     size_t n = w->len / 10;
@@ -1334,7 +1335,7 @@ static void *pool(void *work)
         pthread_mutex_lock(&w->q_lock);
         vector_t *var_set = (vector_t *)vector_pop(w->queue);
         pthread_mutex_unlock(&w->q_lock);
-        print_status("remain = %d\n", w->queue->len);
+        //print_status("remain = %d\n", w->queue->len);
         if (var_set == NULL)
             break;
 
@@ -1342,15 +1343,15 @@ static void *pool(void *work)
 
         if (outstr != NULL)
         {
-            print_status("varset pop pos=%d\n", ((variant_t *)var_set)->pos);
+            //print_status("varset pop pos=%d\n", ((variant_t *)var_set)->pos);
             pthread_mutex_lock(&w->r_lock);
             if (!verbose && n > 10 && w->results->len > 10 && w->results->len % n == 0)
             {
                 print_status("# Progress: %zd%%: %zd / %zd\t%s", 10 * w->results->len / n, w->results->len, w->queue->len, asctime(time_info));
             }
-            print_status("w->result add\n");
+            //print_status("w->result add\n");
             vector_add(w->results, outstr);
-            print_status("w->result add complete\n");
+            //print_status("w->result add complete\n");
             //print_status("remain = %d\n", (w->queue)->len);
             pthread_mutex_unlock(&w->r_lock);
         }
@@ -1388,7 +1389,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     //qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
     //for(count=0; count<var_list->len; ++count)var_data[count]->chr = tmp;
     /*---------*/
-    print_status("new var_list->len = %d(After add all C)\n", var_list->len);
+    //print_status("new var_list->len = %d(After add all C)\n", var_list->len);
 
     i = 0;
     vector_t *var_set = vector_create(var_list->len, VOID_T);
