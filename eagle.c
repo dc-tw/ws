@@ -173,33 +173,33 @@ static int bam_fetch_last(const char *bam_file, const char *chr, const int pos1,
 
 static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1, const int pos2)
 {
-    print_status("region %d to %d\n", pos1, pos2);
+    //print_status("region %d to %d\n", pos1, pos2);
     /* Reads in region coordinates */
     vector_t *read_list = vector_create(256, READ_T);
 
-    print_status("sam open\n");
+    //print_status("sam open\n");
     samFile *sam_in = sam_open(bam_file, "r"); // open bam file
     if (sam_in == NULL)
     {
         exit_err("failed to open BAM file %s\n", bam_file);
     }
-    print_status("sam_hdr_read\n");
+    //print_status("sam_hdr_read\n");
     bam_hdr_t *bam_header = sam_hdr_read(sam_in); // bam header
     if (bam_header == 0)
     {
         exit_err("bad header %s\n", bam_file);
     }
-    print_status("sam_index_load\n");
+    //print_status("sam_index_load\n");
     hts_idx_t *bam_idx = sam_index_load(sam_in, bam_file); // bam index
     if (bam_idx == NULL)
     {
         exit_err("failed to open BAM index %s\n", bam_file);
     }
 
-    print_status("bam_name2id\n");
+    //print_status("bam_name2id\n");
     //int tid = bam_name2id(b_bam_header, chr);
     int tid = bam_name2id(bam_header, chr);
-    print_status("sam_itr_queryi\n");
+    //print_status("sam_itr_queryi\n");
     //hts_itr_t *iter = sam_itr_queryi(b_bam_idx, tid, pos1 - 1, pos2); // read iterator
     hts_itr_t *iter = sam_itr_queryi(bam_idx, tid, pos1 - 1, pos2); // read iterator
     if (iter != NULL)
@@ -215,7 +215,7 @@ static vector_t *bam_fetch(const char *bam_file, const char *chr, const int pos1
         }
         bam_destroy1(aln);
     }
-    print_status("usage destroy\n");
+    //print_status("usage destroy\n");
     hts_itr_destroy(iter);
     hts_idx_destroy(bam_idx);
     bam_hdr_destroy(bam_header);
