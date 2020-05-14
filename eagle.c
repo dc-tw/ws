@@ -35,6 +35,11 @@ This program is distributed under the terms of the GNU General Public License
 #define LOG90 (log(0.9))
 #define LGALPHA (log(ALPHA))
 
+/*#define LOG20 (log(0.2))
+#define LOG80 (log(0.8))
+#define LOG30 (log(0.3))
+#define LOG70 (log(0.7))*/
+
 /* Command line arguments */
 static int debug;
 static char *vcf_file;
@@ -1381,6 +1386,11 @@ static void process(const vector_t *var_list, FILE *out_fh)
     //for(count = 0; count<100; ++count){
         if(refseq[count]=='C'){
             variant_t *v = variant_create(tmp, count, "c", "t");
+            v->chr = tmp;
+            vector_add(var_list, v);
+        }
+        if(refseq[count]=='G'){
+            variant_t *v = variant_create(tmp, count, "g", "a");
             v->chr = tmp;
             vector_add(var_list, v);
         }

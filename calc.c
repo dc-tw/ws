@@ -307,6 +307,7 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
         
         //print_status("start popping B-variants\n");
         bisulfite_node_t *s;
+        //if(h->node[0].priority<0)return 0;
         while (s = bisulfite_heap_pop(h), s != NULL && h->len != 0)
         {
             //bisulfite_heap_pop(node);//node = heap.pop();//也許要記錄which variant
