@@ -71,7 +71,7 @@ static double ref_prior, alt_prior, het_prior;
 samFile *b_sam_in;
 bam_hdr_t *b_bam_header;
 hts_idx_t *b_bam_idx;
-//int ref_tmp, alt_tmp;
+int ref_tmp, alt_tmp;
 /*----------*/
 
 /* Time info */
@@ -620,7 +620,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
     stat->alt_count = 0;
     stat->seen = 0;
     
-    //alt_tmp=0;ref_tmp=0;
+    alt_tmp=0;ref_tmp=0;
 
     variant_t **var_data = (variant_t **)var_set->data;
     double log_nv = log((double)var_set->len);
@@ -921,12 +921,12 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         //print_status("vector double add\n");
 
         /* Read count incremented only when the difference in probability is not ambiguous, > ~log(2) difference and more likely than pout */
-        /*if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
+        if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
             stat->alt_count += 1;
         else if (prgu1[0] > prgv1[0] && prgu1[0] - prgv1[0] > 0.69 && prgu1[0] - pout > 0.69)
-            stat->ref_count += 1;*/
-        if(read_data[readi]->is_reverse)stat->alt_count += 1;
-        else stat->ref_count += 1;
+            stat->ref_count += 1;
+        if(read_data[readi]->is_reverse)alt_tmp += 1;
+        else ref_tmp += 1;
 
         if (debug >= 2)
         {
@@ -1078,7 +1078,8 @@ static char *evaluate(vector_t *var_set)
             vector_t *v = vector_create(var_set->len, VARIANT_T);
             for (i = 0; i < stat[max_seti]->combo->len; i++)
                 vector_add(v, var_data[stat[max_seti]->combo->data[i]]);
-            variant_print(&output, v, 0, stat[max_seti]->seen, stat[max_seti]->ref_count, stat[max_seti]->alt_count, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
+            //variant_print(&output, v, 0, stat[max_seti]->seen, stat[max_seti]->ref_count, stat[max_seti]->alt_count, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
+            variant_print(&output, v, 0, stat[max_seti]->seen, ref_tmp, alt_tmp, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
             vector_free(v); //variants in var_list so don't destroy
         }
         else{
@@ -1118,7 +1119,8 @@ static char *evaluate(vector_t *var_set)
                         not_alt = log_add_exp(not_alt, prhap->data[seti]);
                 }
                 //variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
-                variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total, has_alt, not_alt);
+                variant_print(&output, var_set, i, seen, ref_tmp, alt_tmp, total, has_alt, not_alt);
+                //variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total, has_alt, not_alt);
                 //variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total/stats->len, has_alt, not_alt);
             }
         }
