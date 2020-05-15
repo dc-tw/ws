@@ -921,10 +921,12 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         //print_status("vector double add\n");
 
         /* Read count incremented only when the difference in probability is not ambiguous, > ~log(2) difference and more likely than pout */
-        if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
+        /*if (prgv1[0] > prgu1[0] && prgv1[0] - prgu1[0] > 0.69 && prgv1[0] - pout > 0.69)
             stat->alt_count += 1;
         else if (prgu1[0] > prgv1[0] && prgu1[0] - prgv1[0] > 0.69 && prgu1[0] - pout > 0.69)
-            stat->ref_count += 1;
+            stat->ref_count += 1;*/
+        if(read_data[readi]->is_reverse)stat->alt_count += 1;
+        else stat->ref_count += 1;
 
         if (debug >= 2)
         {
@@ -1059,67 +1061,67 @@ static char *evaluate(vector_t *var_set)
         char *output = malloc(sizeof(*output));
         output[0] = '\0';
         
-    if (mvh)
-    { /* Max likelihood variant hypothesis */
-        size_t max_seti = 0;
-        double r = stat[0]->mut - stat[0]->ref;
-        double has_alt = stat[0]->mut;
-        for (seti = 1; seti < stats->len; seti++)
-        {
-            if (stat[seti]->mut - stat[seti]->ref > r)
+        if (mvh)
+        { /* Max likelihood variant hypothesis */
+            size_t max_seti = 0;
+            double r = stat[0]->mut - stat[0]->ref;
+            double has_alt = stat[0]->mut;
+            for (seti = 1; seti < stats->len; seti++)
             {
-                r = stat[seti]->mut - stat[seti]->ref;
-                has_alt = stat[seti]->mut;
-                max_seti = seti;
+                if (stat[seti]->mut - stat[seti]->ref > r)
+                {
+                    r = stat[seti]->mut - stat[seti]->ref;
+                    has_alt = stat[seti]->mut;
+                    max_seti = seti;
+                }
             }
+            vector_t *v = vector_create(var_set->len, VARIANT_T);
+            for (i = 0; i < stat[max_seti]->combo->len; i++)
+                vector_add(v, var_data[stat[max_seti]->combo->data[i]]);
+            variant_print(&output, v, 0, stat[max_seti]->seen, stat[max_seti]->ref_count, stat[max_seti]->alt_count, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
+            vector_free(v); //variants in var_list so don't destroy
         }
-        vector_t *v = vector_create(var_set->len, VARIANT_T);
-        for (i = 0; i < stat[max_seti]->combo->len; i++)
-            vector_add(v, var_data[stat[max_seti]->combo->data[i]]);
-        variant_print(&output, v, 0, stat[max_seti]->seen, stat[max_seti]->ref_count, stat[max_seti]->alt_count, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
-        vector_free(v); //variants in var_list so don't destroy
-    }
-    else{
-        for (i = 0; i < var_set->len; i++)
-        {
-            double has_alt = 0;
-            double not_alt = 0;
-            int acount = -1;
-            int rcount = -1;
-            int seen = -1;
-            /*for (seti = 0; seti < stats->len; seti++)
+        else{
+            for (i = 0; i < var_set->len; i++)
             {
-                if (variant_find(stat[seti]->combo, i) != -1)
-               { // if variant is in this combination
-                    has_alt = (has_alt == 0) ? stat[seti]->mut : log_add_exp(has_alt, stat[seti]->mut);
-                    not_alt = (not_alt == 0) ? stat[seti]->ref : log_add_exp(not_alt, stat[seti]->ref);
-                    if (stat[seti]->seen > seen)
-                        seen = stat[seti]->seen;
-                    if (stat[seti]->alt_count > acount)
+                double has_alt = 0;
+                double not_alt = 0;
+                int acount = -1;
+                int rcount = -1;
+                int seen = -1;
+                for (seti = 0; seti < stats->len; seti++)
+                {
+                    if (variant_find(stat[seti]->combo, i) != -1)
+                { // if variant is in this combination
+                        has_alt = (has_alt == 0) ? stat[seti]->mut : log_add_exp(has_alt, stat[seti]->mut);
+                        not_alt = (not_alt == 0) ? stat[seti]->ref : log_add_exp(not_alt, stat[seti]->ref);
+                        if (stat[seti]->seen > seen)
+                            seen = stat[seti]->seen;
+                        if (stat[seti]->alt_count > acount)
+                        {
+                            acount = stat[seti]->alt_count;
+                            rcount = stat[seti]->ref_count;
+                        }
+                    }
+                    else
                     {
-                        acount = stat[seti]->alt_count;
-                        rcount = stat[seti]->ref_count;
+                        not_alt = (not_alt == 0) ? stat[seti]->mut : log_add_exp(not_alt, stat[seti]->mut);
                     }
                 }
-                else
+                for (seti = 0; seti < combo->len; seti++)
                 {
-                    not_alt = (not_alt == 0) ? stat[seti]->mut : log_add_exp(not_alt, stat[seti]->mut);
+                    int x = haplotypes->data[((vector_int_t *)combo->data[seti])->data[0]];
+                    int y = haplotypes->data[((vector_int_t *)combo->data[seti])->data[1]];
+                    if (variant_find(stat[x]->combo, i) != -1 || variant_find(stat[y]->combo, i) != -1)
+                        has_alt = log_add_exp(has_alt, prhap->data[seti]);
+                    else
+                        not_alt = log_add_exp(not_alt, prhap->data[seti]);
                 }
+                variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
+                //variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total, has_alt, not_alt);
+                //variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total/stats->len, has_alt, not_alt);
             }
-            for (seti = 0; seti < combo->len; seti++)
-            {
-                int x = haplotypes->data[((vector_int_t *)combo->data[seti])->data[0]];
-                int y = haplotypes->data[((vector_int_t *)combo->data[seti])->data[1]];
-                if (variant_find(stat[x]->combo, i) != -1 || variant_find(stat[y]->combo, i) != -1)
-                    has_alt = log_add_exp(has_alt, prhap->data[seti]);
-                else
-                    not_alt = log_add_exp(not_alt, prhap->data[seti]);
-            }*/
-            //variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
-            //variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total, has_alt, not_alt);
-            variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total/stats->len, has_alt, not_alt);
         }
-    }
         
         //print_status("free data\n");
         for (i = 0; i < combo->len; i++)
