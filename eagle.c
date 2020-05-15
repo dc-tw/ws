@@ -368,7 +368,8 @@ static inline void variant_print(char **output, const vector_t *var_set, int i, 
 
     int n = snprintf(NULL, 0, "%s\t%d\t%s\t%s\t%d\t%d\t%d\t%e\t%f\t", var_data[i]->chr, var_data[i]->pos, var_data[i]->ref, var_data[i]->alt, nreads, not_alt_count, has_alt_count, prob, odds) + 1;
     char token[n];
-    snprintf(token, n, "%s\t%d\t%s\t%s\t%d\t%d\t%d\t%e\t%f\t", var_data[i]->chr, var_data[i]->pos, var_data[i]->ref, var_data[i]->alt, nreads, not_alt_count, has_alt_count, prob, odds);
+    //snprintf(token, n, "%s\t%d\t%s\t%s\t%d\t%d\t%d\t%e\t%f\t", var_data[i]->chr, var_data[i]->pos, var_data[i]->ref, var_data[i]->alt, nreads, not_alt_count, has_alt_count, prob, odds);
+    snprintf(token, n, "%s\t%d\t%s\t%s\t%d\t%d\t%d\t%e\t%f\t", var_data[i]->chr, var_data[i]->pos, var_data[i]->ref, var_data[i]->alt, alt_tmp+ref_tmp, ref_tmp, alt_tmp, prob, odds);
     str_resize(output, strlen(*output) + n);
     strcat(*output, token);
 
@@ -1078,8 +1079,8 @@ static char *evaluate(vector_t *var_set)
             vector_t *v = vector_create(var_set->len, VARIANT_T);
             for (i = 0; i < stat[max_seti]->combo->len; i++)
                 vector_add(v, var_data[stat[max_seti]->combo->data[i]]);
-            //variant_print(&output, v, 0, stat[max_seti]->seen, stat[max_seti]->ref_count, stat[max_seti]->alt_count, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
-            variant_print(&output, v, 0, ref_tmp+alt_tmp, ref_tmp, alt_tmp, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
+            variant_print(&output, v, 0, stat[max_seti]->seen, stat[max_seti]->ref_count, stat[max_seti]->alt_count, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
+            //variant_print(&output, v, 0, ref_tmp+alt_tmp, ref_tmp, alt_tmp, log_add_exp(total, stat[max_seti]->ref), has_alt, stat[max_seti]->ref);
             vector_free(v); //variants in var_list so don't destroy
         }
         else{
@@ -1118,8 +1119,8 @@ static char *evaluate(vector_t *var_set)
                     else
                         not_alt = log_add_exp(not_alt, prhap->data[seti]);
                 }
-                //variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
-                variant_print(&output, var_set, i, ref_tmp+alt_tmp, ref_tmp, alt_tmp, total, has_alt, not_alt);
+                variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
+                //variant_print(&output, var_set, i, ref_tmp+alt_tmp, ref_tmp, alt_tmp, total, has_alt, not_alt);
                 //variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total, has_alt, not_alt);
                 //variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total/stats->len, has_alt, not_alt);
             }
