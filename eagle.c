@@ -1097,7 +1097,7 @@ static char *evaluate(vector_t *var_set)
                         not_alt = (not_alt == 0) ? stat[seti]->ref : log_add_exp(not_alt, stat[seti]->ref);
                         if (stat[seti]->seen > seen)
                             seen = stat[seti]->seen;
-                        if (stat[seti]->alt_count >= acount)
+                        if (stat[seti]->alt_count > acount)
                         {
                             acount = stat[seti]->alt_count;
                             rcount = stat[seti]->ref_count;
@@ -1117,8 +1117,8 @@ static char *evaluate(vector_t *var_set)
                     else
                         not_alt = log_add_exp(not_alt, prhap->data[seti]);
                 }
-                variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
-                //variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total, has_alt, not_alt);
+                //variant_print(&output, var_set, i, seen, rcount, acount, total, has_alt, not_alt);
+                variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total, has_alt, not_alt);
                 //variant_print(&output, var_set, i, stat[seti]->seen, stat[seti]->ref_count, stat[seti]->alt_count, total/stats->len, has_alt, not_alt);
             }
         }
