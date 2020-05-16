@@ -374,7 +374,7 @@ static inline void variant_print(char **output, const vector_t *var_set, int i, 
     strcat(*output, token);
 
     str_resize(output, strlen(*output) + 2);
-    strcat(*output, "[");
+    strcat(*output, "\t[");
     if (var_set->len > 1)
     {
         for (i = 0; i < var_set->len; i++)
@@ -839,6 +839,8 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         //print_status("merge prgu & prgv\n");
         prgu1[0] = prgu1[0]+prgu1[1]+prgu1[2]+prgu1[3]+prgu2[0]+prgu2[1]+prgu2[2]+prgu2[3];
         prgv1[0] = prgv1[0]+prgv1[1]+prgv1[2]+prgv1[3]+prgv2[0]+prgv2[1]+prgv2[2]+prgv2[3];
+        /*prgu1[0] = prgu1[0]*prgu1[1]*prgu1[2]*prgu1[3]*prgu2[0]*prgu2[1]*prgu2[2]*prgu2[3];
+        prgv1[0] = prgv1[0]*prgv1[1]*prgv1[2]*prgv1[3]*prgv2[0]*prgv2[1]*prgv2[2]*prgv2[3];*/
         double pout = elsewhere;
 
         /* Multi-map alignments from XA tags: chr8,+42860367,97M3S,3;chr9,-44165038,100M,4; */
@@ -1302,7 +1304,7 @@ static char *evaluate(vector_t *var_set)
         }
     }
 
-    if (verbose)
+    /*if (verbose)
     {
         for (readi = 0; readi < read_list->len; readi++)
         {
@@ -1331,7 +1333,7 @@ static char *evaluate(vector_t *var_set)
             fprintf(stderr, "]\n");
             funlockfile(stderr);
         }
-    }
+    }*/
 
     for (i = 0; i < combo->len; i++)
         vector_int_free(combo->data[i]);
