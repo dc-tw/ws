@@ -1413,14 +1413,17 @@ static void process(const vector_t *var_list, FILE *out_fh)
         variant_t *v = variant_create(tmp, 0, "c", "t");
         vector_add(var_list, v);
     }
+    /*if(refseq[0]=='G'&&refseq[1]=='C'){
+        variant_t *v = variant_create(tmp, 0, "g", "a");
+        vector_add(var_list, v);
+    }*/
     for(count = 1; count<refseq_length-1; ++count){
-    //for(count = 0; count<100; ++count){
         if((refseq[count]=='C'&&refseq[count-1]=='G')||(refseq[count]=='C'&&refseq[count+1]=='G')){
             variant_t *v = variant_create(tmp, count, "c", "t");
             v->chr = tmp;
             vector_add(var_list, v);
         }
-        /*if(refseq[count]=='G'){
+        /*if((refseq[count]=='G'&&refseq[count-1]=='C')||(refseq[count]=='G'&&refseq[count+1]=='C')){
             variant_t *v = variant_create(tmp, count, "g", "a");
             v->chr = tmp;
             vector_add(var_list, v);
@@ -1430,6 +1433,10 @@ static void process(const vector_t *var_list, FILE *out_fh)
         variant_t *v = variant_create(tmp, refseq_length-1, "c", "t");
         vector_add(var_list, v);
     }
+    /*if(refseq[refseq_length-1]=='G'&&refseq[refseq_length-2]=='C'){
+        variant_t *v = variant_create(tmp, refseq_length-1, "g", "a");
+        vector_add(var_list, v);
+    }*/
     var_data = (variant_t **)var_list->data;
     //qsort(var_list->data, var_list->len, sizeof(void *), nat_sort_variant);
     //for(count=0; count<var_list->len; ++count)var_data[count]->chr = tmp;
