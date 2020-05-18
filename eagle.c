@@ -1401,8 +1401,8 @@ static void process(const vector_t *var_list, FILE *out_fh)
     variant_t **var_data = (variant_t **)var_list->data;
 
     /*---------*/
-    //print_status("start picking C\n");
-    char *tmp = "chrM";
+    print_status("start picking C\n");
+    char *tmp = strdup(var_data[0]->chr);
     fasta_t *f = refseq_fetch(tmp, fa_file);
     if (f == NULL)
         return NULL;
