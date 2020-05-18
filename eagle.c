@@ -783,7 +783,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         double a = sum_d(is_match, read_data[readi]->length);
         double elsewhere = log_add_exp(a, a + log_sum_exp(delta, read_data[readi]->length)) - (LGALPHA * (read_data[readi]->length - read_data[readi]->inferred_length));
 
-        //print_status("starting calculate read No.%d v=%d\n", readi, var_data[0]->pos);
+        print_status("starting calculate read No.%d v=%d\n", readi, var_data[0]->pos);
         double prgu1[4], prgv1[4], prgu2[4], prgv2[4];
         /*---------------------*/
         prgu1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
@@ -1007,12 +1007,12 @@ static char *evaluate(vector_t *var_set)
         vector_t *stats = vector_create(var_set->len + 1, STATS_T);
         stats_t *s = stats_create((vector_int_t *)var_set->data[seti], read_list->len);
         //vector_add(stats, s);
-        //print_status("start calc_likelihood\n");
+        print_status("start calc_likelihood\n");
         calc_likelihood_bisulfite(s, var_set, refseq, refseq_length, read_data, read_list->len, readi, seqnt_map);
         vector_add(stats, s);
 
         stats_t **stat = (stats_t **)stats->data;
-        //print_status("probablility model\n");
+        print_status("probablility model\n");
         
         int c[read_list->len];//int c[stats->len];
         memset(c, 0, sizeof(c));
@@ -1369,7 +1369,7 @@ static void *pool(void *work)
         pthread_mutex_lock(&w->q_lock);
         vector_t *var_set = (vector_t *)vector_pop(w->queue);
         pthread_mutex_unlock(&w->q_lock);
-        //print_status("remain = %d\n", w->queue->len);
+        print_status("remain = %d\n", w->queue->len);
         if (var_set == NULL)
             break;
 
@@ -1411,7 +1411,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     int count;
     //char *tmp = strdup(var_data[0]->chr);
     //char *tmp = "chrM";
-    if(refseq[0]=='C'&&refseq[1]=='G'){
+    if((refseq[0]=='C'||refseq[0]=='c')&&refseq[1]=='G'){
         variant_t *v = variant_create(tmp, 0, "c", "t");
         vector_add(var_list, v);
     }
@@ -1420,7 +1420,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
         vector_add(var_list, v);
     }*/
     for(count = 1; count<refseq_length-1; ++count){
-        if((refseq[count]=='C'&&refseq[count-1]=='G')||(refseq[count]=='C'&&refseq[count+1]=='G')){
+        if(((refseq[count]=='C'||refseq[count]=='c')&&refseq[count-1]=='G')||((refseq[count]=='C'||refseq[count]=='c')&&refseq[count+1]=='G')){
             variant_t *v = variant_create(tmp, count, "c", "t");
             v->chr = tmp;
             vector_add(var_list, v);
@@ -1431,7 +1431,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
             vector_add(var_list, v);
         }*/
     }
-    if(refseq[refseq_length-1]=='C'&&refseq[refseq_length-2]=='G'){
+    if((refseq[count]=='C'||refseq[count]=='c')&&refseq[refseq_length-2]=='G'){
         variant_t *v = variant_create(tmp, refseq_length-1, "c", "t");
         vector_add(var_list, v);
     }
