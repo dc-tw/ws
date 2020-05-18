@@ -72,6 +72,7 @@ samFile *b_sam_in;
 bam_hdr_t *b_bam_header;
 hts_idx_t *b_bam_idx;
 int ref_tmp, alt_tmp;
+string picked_ref;
 /*----------*/
 
 /* Time info */
@@ -104,6 +105,7 @@ static vector_t *vcf_read(FILE *file)
         char chr[line_length], ref[line_length], alt[line_length];
         int t = sscanf(line, "%s %d %*[^\t] %s %s", chr, &pos, ref, alt);
 
+        if(chr != picked_ref)continue;
         if(ref[1]!=NULL || alt[1]!=NULL)continue;
 
         if (t < 4 || has_numbers(ref) || has_numbers(alt))
@@ -1403,6 +1405,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     /*---------*/
     print_status("start picking C\n");
     char *tmp = strdup(var_data[0]->chr);
+    picked_ref = "chrM"
     fasta_t *f = refseq_fetch(tmp, fa_file);
     if (f == NULL)
         return NULL;
@@ -1412,7 +1415,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     //char *tmp = strdup(var_data[0]->chr);
     //char *tmp = "chrM";
     if((refseq[0]=='C'||refseq[0]=='c')&&refseq[1]=='G'){
-        variant_t *v = variant_create(tmp, 0, "c", "t");
+        variant_t *v = variant_create(picked_ref, 0, "c", "t");
         vector_add(var_list, v);
     }
     /*if(refseq[0]=='G'&&refseq[1]=='C'){
@@ -1421,8 +1424,8 @@ static void process(const vector_t *var_list, FILE *out_fh)
     }*/
     for(count = 1; count<refseq_length-1; ++count){
         if(((refseq[count]=='C'||refseq[count]=='c')&&refseq[count-1]=='G')||((refseq[count]=='C'||refseq[count]=='c')&&refseq[count+1]=='G')){
-            variant_t *v = variant_create(tmp, count, "c", "t");
-            v->chr = tmp;
+            variant_t *v = variant_create(picked_ref, count, "c", "t");
+            v->chr = picked_ref;
             vector_add(var_list, v);
         }
         /*if((refseq[count]=='G'&&refseq[count-1]=='C')||(refseq[count]=='G'&&refseq[count+1]=='C')){
@@ -1432,7 +1435,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
         }*/
     }
     if((refseq[count]=='C'||refseq[count]=='c')&&refseq[refseq_length-2]=='G'){
-        variant_t *v = variant_create(tmp, refseq_length-1, "c", "t");
+        variant_t *v = variant_create(picked_ref, refseq_length-1, "c", "t");
         vector_add(var_list, v);
     }
     /*if(refseq[refseq_length-1]=='G'&&refseq[refseq_length-2]=='C'){
