@@ -72,7 +72,7 @@ samFile *b_sam_in;
 bam_hdr_t *b_bam_header;
 hts_idx_t *b_bam_idx;
 int ref_tmp, alt_tmp;
-string picked_ref;
+char* picked_ref;
 /*----------*/
 
 /* Time info */
