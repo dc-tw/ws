@@ -855,7 +855,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         //free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
         
         /*---------------------*/
-        if(count_v_usage==8)sum_v_usage += 1;
+        if(count_v_usage>=4)sum_v_usage += 1;
         //print_status("merge prgu & prgv\n");
         prgu1[0] = prgu1[0]+prgu1[1]+prgu1[2]+prgu1[3]+prgu2[0]+prgu2[1]+prgu2[2]+prgu2[3];
         prgv1[0] = prgv1[0]+prgv1[1]+prgv1[2]+prgv1[3]+prgv2[0]+prgv2[1]+prgv2[2]+prgv2[3];
@@ -1642,6 +1642,7 @@ static void process(const vector_t *var_list, FILE *out_fh)
     fprintf(out_fh, "may be variant : ");
     for (i = 0; i < may_be_variant->len; i++)
         fprintf(out_fh, "%d\t", may_be_variant->data[i]);
+    fprintf(out_fh, "\n");
     
         //fprintf(out_fh, "%d\t", may_be_variant[i]);
     vector_destroy(queue);
