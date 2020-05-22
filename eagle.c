@@ -986,7 +986,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
             int *p = realloc(may_be_variant->data, may_be_variant->size * sizeof (int));
             may_be_variant->data = p;
         }
-        a->data[a->len++] = var_data[0]->pos;
+        may_be_variant->data[a->len++] = var_data[0]->pos;
     }
     //print_status("free new refs\n");
     stat->mut = log_add_exp(stat->alt, stat->het);
@@ -1639,9 +1639,9 @@ static void process(const vector_t *var_list, FILE *out_fh)
     fprintf(out_fh, "\n# SEQ\tPOS\tREF\tALT\tReads\tRefReads\tAltReads\tProb\tOdds\tSet\n");
     for (i = 0; i < results->len; i++)
         fprintf(out_fh, "%s", (char *)results->data[i]);
-    /*fprintf(out_fh, "may be variant : ");
-    for (i = 0; i < maybe_count; i++)
-        fprintf(out_fh, "%d\t", may_be_variant[maybe_count]);*/
+    fprintf(out_fh, "may be variant : ");
+    for (i = 0; i < may_be_variant->len; i++)
+        fprintf(out_fh, "%d\t", may_be_variant->data[i]);
     
         //fprintf(out_fh, "%d\t", may_be_variant[i]);
     vector_destroy(queue);
