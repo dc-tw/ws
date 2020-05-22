@@ -986,7 +986,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
             int *p = realloc(may_be_variant->data, may_be_variant->size * sizeof (int));
             may_be_variant->data = p;
         }
-        may_be_variant->data[a->len++] = var_data[0]->pos;
+        may_be_variant->data[may_be_variant->len++] = var_data[0]->pos;
     }
     //print_status("free new refs\n");
     stat->mut = log_add_exp(stat->alt, stat->het);
