@@ -75,8 +75,8 @@ int ref_tmp, alt_tmp;
 char* picked_ref;
 int v_usage;
 stats_t **use;
-int *may_be_variant;
-int *all_usage = may_be_variant;
+int *may_be_variant, *all_usage;
+all_usage = may_be_variant;
 /*----------*/
 
 /* Time info */
