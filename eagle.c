@@ -74,8 +74,8 @@ hts_idx_t *b_bam_idx;*/
 int ref_tmp, alt_tmp;
 char* picked_ref;
 int v_usage;
-int *may_be_variant = (int *)malloc(sizeof(int);
-int maybe_count = 0;
+/*int *may_be_variant = (int *)malloc(sizeof(int);
+int maybe_count = 0;*/
 /*----------*/
 
 /* Time info */
@@ -974,9 +974,10 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         //free(readprobmatrix); free(readprobmatrix2);
     }
     if(sum_v_usage == nreads){
-        may_be_variant = realloc(may_be_variant, sizeof(int) * (maybe_count+1) );
-        may_be_variant[maybe_count] = var_data[0]->pos;
-    }//print_status("this may be a variant\n");
+        fprintf(out_fh, "%d\t", var_data[0]->pos);
+        //may_be_variant = realloc(may_be_variant, sizeof(int) * (maybe_count+1) );
+        //may_be_variant[maybe_count] = var_data[0]->pos;
+    }
     //print_status("free new refs\n");
     stat->mut = log_add_exp(stat->alt, stat->het);
     free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
@@ -1625,12 +1626,12 @@ static void process(const vector_t *var_list, FILE *out_fh)
     vector_free(var_set); //variants in var_list so don't destroy
 
     qsort(results->data, results->len, sizeof(void *), nat_sort_vector);
-    fprintf(out_fh, "# SEQ\tPOS\tREF\tALT\tReads\tRefReads\tAltReads\tProb\tOdds\tSet\n");
+    fprintf(out_fh, "\n# SEQ\tPOS\tREF\tALT\tReads\tRefReads\tAltReads\tProb\tOdds\tSet\n");
     for (i = 0; i < results->len; i++)
         fprintf(out_fh, "%s", (char *)results->data[i]);
-    fprintf(out_fh, "may be variant : ");
+    /*fprintf(out_fh, "may be variant : ");
     for (i = 0; i < maybe_count; i++)
-        fprintf(out_fh, "%d\t", may_be_variant[maybe_count]);
+        fprintf(out_fh, "%d\t", may_be_variant[maybe_count]);*/
     
         //fprintf(out_fh, "%d\t", may_be_variant[i]);
     vector_destroy(queue);
