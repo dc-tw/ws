@@ -75,7 +75,7 @@ int ref_tmp, alt_tmp;
 char* picked_ref;
 int v_usage;
 stats_t **use;
-int *may_be_variant;
+int *may_be_variant = malloc(sizeof(int));
 int maybe_count = 0;
 /*----------*/
 
@@ -975,6 +975,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         //free(readprobmatrix); free(readprobmatrix2);
     }
     if(sum_v_usage == nreads){
+        may_be_variant = realloc(may_be_variant, sizeof(int) * (maybe_count+1) );
         may_be_variant[maybe_count] = var_data[0]->pos;
     }//print_status("this may be a variant\n");
     //print_status("free new refs\n");
