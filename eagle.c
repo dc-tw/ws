@@ -806,16 +806,16 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         prgv1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
                         read_data[readi]->n_splice, seqnt_map, 1);
-        count_v_usage += no_usage;
+        count_v_usage += v_usage;
         //print_status("complete prgv1[0]\n");
         prgv1[1] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
-        count_v_usage += no_usage;
+        count_v_usage += v_usage;
         //print_status("complete prgv1[1]\n");
         prgv1[2] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
-        count_v_usage += no_usage;
+        count_v_usage += v_usage;
         //print_status("complete prgv1[2]\n");
         prgv1[3] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
-        count_v_usage += no_usage;
+        count_v_usage += v_usage;
         //print_status("complete prgv1[3]\n");
 
         //alt stand for general(0) or modified(1)
@@ -834,16 +834,16 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         prgv2[0] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
                         read_data[readi]->n_splice, seqnt_map, 1);
-        count_v_usage += no_usage;
+        count_v_usage += v_usage;
         //print_status("complete prgv2[0]\n");
         prgv2[1] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
-        count_v_usage += no_usage;
+        count_v_usage += v_usage;
         //print_status("complete prgv2[1]\n");
         prgv2[2] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
-        count_v_usage += no_usage;
+        count_v_usage += v_usage;
         //print_status("complete prgv2[2]\n");
         prgv2[3] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
-        count_v_usage += no_usage;
+        count_v_usage += v_usage;
         //print_status("complete prgv2[3]\n");
 
         //ignore mixture model part, dealing with 2 strand problem for now
