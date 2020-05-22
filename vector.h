@@ -108,4 +108,10 @@ int nat_sort_region(const void *a, const void *b);
 
 read_t *read_fetch(bam_hdr_t *bam_header, bam1_t *aln, int pao, int isc, int nodup, int splice, int phred64, int const_qual);
 
+typedef struct {
+    size_t len, size;
+    int *data;
+} vector_variantpos_t;
+
+
 #endif

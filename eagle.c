@@ -74,6 +74,10 @@ hts_idx_t *b_bam_idx;*/
 int ref_tmp, alt_tmp;
 char* picked_ref;
 int v_usage;
+vector_variantpos_t *may_be_variant = malloc(sizeof (vector_variantpos_t));
+may_be_variant->data = malloc(sizeof (int));
+may_be_variant->len = 0;
+may_be_variant->size = 1;
 /*int *may_be_variant = (int *)malloc(sizeof(int);
 int maybe_count = 0;*/
 /*----------*/
@@ -973,10 +977,16 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         }
         //free(readprobmatrix); free(readprobmatrix2);
     }
+
     if(sum_v_usage == nreads){
-        fprintf(out_fh, "%d\t", var_data[0]->pos);
         //may_be_variant = realloc(may_be_variant, sizeof(int) * (maybe_count+1) );
         //may_be_variant[maybe_count] = var_data[0]->pos;
+        if (may_be_variant->len >= may_be_variant->size) {
+            may_be_variant->size *= 2;
+            int *p = realloc(may_be_variant->data, may_be_variant->size * sizeof (int));
+            may_be_variant->data = p;
+        }
+        a->data[a->len++] = var_data[0]->pos;
     }
     //print_status("free new refs\n");
     stat->mut = log_add_exp(stat->alt, stat->het);
