@@ -75,7 +75,7 @@ int ref_tmp, alt_tmp;
 char* picked_ref;
 int v_usage;
 stats_t **use;
-vector_int_t *may_be_variant = vector_int_create(use);
+vector_int_t *may_be_variant = vector_int_create(use->len);
 /*----------*/
 
 /* Time info */
