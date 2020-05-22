@@ -75,7 +75,7 @@ int ref_tmp, alt_tmp;
 char* picked_ref;
 int v_usage;
 stats_t **use;
-int *may_be_variant = malloc(sizeof(int));
+int *may_be_variant = realloc(may_be_variant, sizeof(int) );
 int maybe_count = 0;
 /*----------*/
 
