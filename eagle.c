@@ -68,11 +68,13 @@ static int rc;
 static double ref_prior, alt_prior, het_prior;
 
 /*----------*/
-samFile *b_sam_in;
+/*samFile *b_sam_in;
 bam_hdr_t *b_bam_header;
-hts_idx_t *b_bam_idx;
+hts_idx_t *b_bam_idx;*/
 int ref_tmp, alt_tmp;
 char* picked_ref;
+int v_usage;
+vector_int_t *may_be_variant = vector_int_create(1);
 /*----------*/
 
 /* Time info */
@@ -740,9 +742,11 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
     //print_status("construct complete\n");
 
     /* Aligned reads */
+    int count_v_usage = 0, sum_v_usage = 0;
     for (readi = 0; readi < nreads; readi++)
     {
         //print_status("round start\n");
+        v_usage = 0;count_v_usage = 0;
         if (read_data[readi]->pos > var_data[0]->pos || 
             read_data[readi]->end < var_data[var_set->len-1]->pos)
         { // read must cross all variants in current combo
@@ -802,12 +806,16 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         prgv1[0] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
                         read_data[readi]->n_splice, seqnt_map, 1);
+        count_v_usage += no_usage;
         //print_status("complete prgv1[0]\n");
         prgv1[1] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        count_v_usage += no_usage;
         //print_status("complete prgv1[1]\n");
         prgv1[2] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        count_v_usage += no_usage;
         //print_status("complete prgv1[2]\n");
         prgv1[3] = calc_prob_bisulfite(var_set, readprobmatrix, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        count_v_usage += no_usage;
         //print_status("complete prgv1[3]\n");
 
         //alt stand for general(0) or modified(1)
@@ -826,18 +834,23 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         prgv2[0] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq1, refseq_length, read_data[readi]->pos, 
                         read_data[readi]->splice_pos, read_data[readi]->splice_offset, 
                         read_data[readi]->n_splice, seqnt_map, 1);
+        count_v_usage += no_usage;
         //print_status("complete prgv2[0]\n");
         prgv2[1] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq2, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        count_v_usage += no_usage;
         //print_status("complete prgv2[1]\n");
         prgv2[2] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq3, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        count_v_usage += no_usage;
         //print_status("complete prgv2[2]\n");
         prgv2[3] = calc_prob_bisulfite(var_set, readprobmatrix2, read_data[readi]->length, new_refseq4, refseq_length, read_data[readi]->pos, read_data[readi]->splice_pos, read_data[readi]->splice_offset, read_data[readi]->n_splice, seqnt_map, 1);
+        count_v_usage += no_usage;
         //print_status("complete prgv2[3]\n");
 
         //ignore mixture model part, dealing with 2 strand problem for now
         //free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
         
         /*---------------------*/
+        if(count_v_usage==8)sum_v_usage += 1;
         //print_status("merge prgu & prgv\n");
         prgu1[0] = prgu1[0]+prgu1[1]+prgu1[2]+prgu1[3]+prgu2[0]+prgu2[1]+prgu2[2]+prgu2[3];
         prgv1[0] = prgv1[0]+prgv1[1]+prgv1[2]+prgv1[3]+prgv2[0]+prgv2[1]+prgv2[2]+prgv2[3];
@@ -959,6 +972,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         }
         //free(readprobmatrix); free(readprobmatrix2);
     }
+    if(sum_v_usage == nreads)vector_int_add(may_be_variant, var_data[0]->pos);//print_status("this may be a variant\n");
     //print_status("free new refs\n");
     stat->mut = log_add_exp(stat->alt, stat->het);
     free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
@@ -1610,6 +1624,9 @@ static void process(const vector_t *var_list, FILE *out_fh)
     fprintf(out_fh, "# SEQ\tPOS\tREF\tALT\tReads\tRefReads\tAltReads\tProb\tOdds\tSet\n");
     for (i = 0; i < results->len; i++)
         fprintf(out_fh, "%s", (char *)results->data[i]);
+    fprintf(out_fh, "may be variant : ");
+    for (i = 0; i < may_be_variant->len; i++)
+        fprintf(out_fh, "%d\t", may_be_variant[i]);
     vector_destroy(queue);
     free(queue);
     queue = NULL;
