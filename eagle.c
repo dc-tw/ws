@@ -74,7 +74,7 @@ hts_idx_t *b_bam_idx;*/
 int ref_tmp, alt_tmp;
 char* picked_ref;
 int v_usage;
-vector_int_t *may_be_variant = vector_int_create(stats->len);
+vector_int_t *may_be_variant = vector_int_create(int);
 /*----------*/
 
 /* Time info */
