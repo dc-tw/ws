@@ -975,7 +975,7 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         //free(readprobmatrix); free(readprobmatrix2);
     }
     if(sum_v_usage == nreads){
-        *all_usage = int(var_data[0]->pos);
+        all_usage = var_data[0]->pos;
         ++all_usage;
     }//print_status("this may be a variant\n");
     //print_status("free new refs\n");
