@@ -75,9 +75,9 @@ int ref_tmp, alt_tmp;
 char* picked_ref;
 int v_usage;
 vector_variantpos_t *may_be_variant = malloc(sizeof (vector_variantpos_t));
-may_be_variant->data = malloc(sizeof (int));
+/*may_be_variant->data = malloc(sizeof (int));
 may_be_variant->len = 0;
-may_be_variant->size = 1;
+may_be_variant->size = 1;*/
 /*int *may_be_variant = (int *)malloc(sizeof(int);
 int maybe_count = 0;*/
 /*----------*/
@@ -1878,6 +1878,9 @@ int main(int argc, char **argv)
     /*b_sam_in = sam_open(bam_file, "r");
     b_bam_header = sam_hdr_read(b_sam_in);
     b_bam_idx = sam_index_load(b_sam_in, bam_file);*/
+    may_be_variant->data = malloc(sizeof (int));
+    may_be_variant->len = 0;
+    may_be_variant->size = 1;
 
     /* Start processing data */
     clock_t tic = clock();
