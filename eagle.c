@@ -75,7 +75,8 @@ int ref_tmp, alt_tmp;
 char* picked_ref;
 int v_usage;
 stats_t **use;
-vector_int_t *may_be_variant = vector_int_create(use->len);
+int *may_be_variant;
+int *all_usage = may_be_variant;
 /*----------*/
 
 /* Time info */
@@ -973,7 +974,10 @@ static void calc_likelihood_bisulfite(stats_t *stat, vector_t *var_set, const ch
         }
         //free(readprobmatrix); free(readprobmatrix2);
     }
-    if(sum_v_usage == nreads)vector_int_add(may_be_variant, var_data[0]->pos);//print_status("this may be a variant\n");
+    if(sum_v_usage == nreads){
+        *all_usage = var_data[0]->pos;
+        ++all_usage;
+    }//print_status("this may be a variant\n");
     //print_status("free new refs\n");
     stat->mut = log_add_exp(stat->alt, stat->het);
     free(new_refseq);free(new_refseq1);free(new_refseq2);free(new_refseq3);free(new_refseq4);
@@ -1626,8 +1630,13 @@ static void process(const vector_t *var_list, FILE *out_fh)
     for (i = 0; i < results->len; i++)
         fprintf(out_fh, "%s", (char *)results->data[i]);
     fprintf(out_fh, "may be variant : ");
-    for (i = 0; i < may_be_variant->len; i++)
-        fprintf(out_fh, "%d\t", may_be_variant[i]);
+    while (all_usage != may_be_variant)
+    {
+        fprintf(out_fh, "%d\t", *may_be_variant);
+        ++may_be_variant;
+    }
+    
+        //fprintf(out_fh, "%d\t", may_be_variant[i]);
     vector_destroy(queue);
     free(queue);
     queue = NULL;
