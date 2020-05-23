@@ -1645,11 +1645,11 @@ static void process(const vector_t *var_list, FILE *out_fh)
     fprintf(out_fh, "\n# SEQ\tPOS\tREF\tALT\tReads\tRefReads\tAltReads\tProb\tOdds\tSet\n");
     for (i = 0; i < results->len; i++)
         fprintf(out_fh, "%s", (char *)results->data[i]);
-    fprintf(out_fh, "may be variant : ");
+    /*fprintf(out_fh, "may be variant : ");
     for (i = 0; i < may_be_variant->len; i++){
         //if((work_t*) results->data[i]->)continue;
         fprintf(out_fh, "%d\t", may_be_variant->data[i]);
-    }
+    }*/
     fprintf(out_fh, "\n");
     
         //fprintf(out_fh, "%d\t", may_be_variant[i]);
