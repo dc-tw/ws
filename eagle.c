@@ -376,8 +376,7 @@ static inline void variant_print(char **output, const vector_t *var_set, int i, 
     int n = snprintf(NULL, 0, "%s\t%d\t%s\t%s\t%d\t%d\t%d\t%e\t%f\t", var_data[i]->chr, var_data[i]->pos, var_data[i]->ref, var_data[i]->alt, nreads, not_alt_count, has_alt_count, prob, odds) + 1;
     char token[n];
     //snprintf(token, n, "%s\t%d\t%s\t%s\t%d\t%d\t%d\t%e\t%f\t", var_data[i]->chr, var_data[i]->pos, var_data[i]->ref, var_data[i]->alt, nreads, not_alt_count, has_alt_count, prob, odds);
-    if(prob<0)snprintf(token, n, "%s\t%d\t%s\t%s\t%d\t%d\t%d\t%e\t%f\t", var_data[i]->chr, var_data[i]->pos, var_data[i]->ref, var_data[i]->alt, alt_tmp+ref_tmp, ref_tmp, alt_tmp, prob, odds);
-    else snprintf(token, n, "%s\t%d\t%s\t%s\t%d\t%d\t%d\t%e\t%f\tmay be variant\t", var_data[i]->chr, var_data[i]->pos, var_data[i]->ref, var_data[i]->alt, alt_tmp+ref_tmp, ref_tmp, alt_tmp, prob, odds);
+    snprintf(token, n, "%s\t%d\t%s\t%s\t%d\t%d\t%d\t%e\t%f\t", var_data[i]->chr, var_data[i]->pos, var_data[i]->ref, var_data[i]->alt, alt_tmp+ref_tmp, ref_tmp, alt_tmp, prob, odds);
     str_resize(output, strlen(*output) + n);
     strcat(*output, token);
 
@@ -395,7 +394,11 @@ static inline void variant_print(char **output, const vector_t *var_set, int i, 
         }
     }
     str_resize(output, strlen(*output) + 3);
-    strcat(*output, "]\n");
+    strcat(*output, "]\t");
+    if(prob>0 && may_be_variant->data[may_be_variant->len-may_be] == var_data[i]->pos){
+        strcat(*output, "may_be_variant\n");++may_be;
+    }
+        
     /*if(prob<0 && may_be_variant->data[may_be_variant->len-1] == var_data[i]->pos){
         strcat(*output, " may be variant\n");
     } 
