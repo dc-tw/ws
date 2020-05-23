@@ -251,6 +251,7 @@ void set_prob_matrix_bisulfite2(double *matrix, const read_t *read, const double
     }
 }
 /*---------------------------------------------------------------------------------------*/
+extern int v_usage;
 double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_length, const char *seq, int seq_length, int pos, int *seqnt_map, int alt) {
     int i; // array[width * row + col] = value
     int end = (pos + read_length < seq_length) ? pos + read_length : seq_length;
@@ -308,7 +309,6 @@ double calc_read_prob_bisulfite(vector_t *var_set, double *matrix, int read_leng
         //print_status("start popping B-variants\n");
         bisulfite_node_t *s;
         if(h->node[0].priority>0){
-            extern int v_usage;
             v_usage = 1;
             //return 0;
         }
@@ -337,9 +337,15 @@ double calc_prob_region_bisulfite(vector_t *var_set, double *matrix, int read_le
     int i;
     double p[end - start];
     double max = 0;
+    int use[end - start];
     for (i = start; i < end; i++) {//for each start position, do the calculation in lower floor
         p[i - start] = calc_read_prob_bisulfite(var_set, matrix, read_length, seq, seq_length, i, seqnt_map, alt);
-        if(max < p[i - start])max = p[i - start];
+        use[i - start] = v_usage;
+        v_usage = 0;
+        if(max < p[i - start]){
+            max = p[i - start];
+            v_usage = use[i - start];
+        }
     }
     //print_status("end calc prob region\n");
     return max;
