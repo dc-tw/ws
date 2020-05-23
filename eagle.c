@@ -396,13 +396,13 @@ static inline void variant_print(char **output, const vector_t *var_set, int i, 
     }
     str_resize(output, strlen(*output) + 3);
     strcat(*output, "]");
-    if(prob<0 && may_be_variant->data[may_be_variant->len-1] == var_data[i]->pos){
+    /*if(prob<0 && may_be_variant->data[may_be_variant->len-1] == var_data[i]->pos){
         strcat(*output, " may be variant\n");
     } 
     else {
         strcat(*output, "\n");
         ++may_be;
-    }
+    }*/
 }
 
 static void calc_likelihood(stats_t *stat, vector_t *var_set, const char *refseq, const int refseq_length, 
@@ -1645,11 +1645,11 @@ static void process(const vector_t *var_list, FILE *out_fh)
     fprintf(out_fh, "\n# SEQ\tPOS\tREF\tALT\tReads\tRefReads\tAltReads\tProb\tOdds\tSet\n");
     for (i = 0; i < results->len; i++)
         fprintf(out_fh, "%s", (char *)results->data[i]);
-    /*fprintf(out_fh, "may be variant : ");
+    fprintf(out_fh, "may be variant : ");
     for (i = 0; i < may_be_variant->len; i++){
         //if((work_t*) results->data[i]->)continue;
         fprintf(out_fh, "%d\t", may_be_variant->data[i]);
-    }*/
+    }
     fprintf(out_fh, "\n");
     
         //fprintf(out_fh, "%d\t", may_be_variant[i]);
