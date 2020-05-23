@@ -396,7 +396,8 @@ static inline void variant_print(char **output, const vector_t *var_set, int i, 
     }
     str_resize(output, strlen(*output) + 3);
     strcat(*output, "]");
-    if(prob<0 && may_be_variant->data[may_be_variant->len-1] == var_data[i]->pos){
+    qsort(may_be_variant->data, may_be_variant->len, sizeof(void *), nat_sort_variant);
+    if(prob<0 && may_be_variant->data[may_be_variant->len] == var_data[i]->pos){
         strcat(*output, " may be variant\n");
     } 
     else {
