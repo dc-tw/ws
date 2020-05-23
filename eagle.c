@@ -75,9 +75,7 @@ int ref_tmp, alt_tmp;
 char* picked_ref;
 int v_usage;
 vector_variantpos_t *may_be_variant;// = malloc(sizeof (vector_variantpos_t));
-/*may_be_variant->data = malloc(sizeof (int));
-may_be_variant->len = 0;
-may_be_variant->size = 1;*/
+int may_be = 0;
 /*int *may_be_variant = (int *)malloc(sizeof(int);
 int maybe_count = 0;*/
 /*----------*/
@@ -398,7 +396,10 @@ static inline void variant_print(char **output, const vector_t *var_set, int i, 
     }
     str_resize(output, strlen(*output) + 3);
     strcat(*output, "]");
-    if(prob>0) strcat(*output, "\n");
+    if(prob>0 && may_be_variant[may_be] == var_data[i]->pos){
+        strcat(*output, "\n");
+        ++may_be;
+    } 
     else strcat(*output, " may be variant\n");
 }
 
