@@ -396,7 +396,7 @@ static inline void variant_print(char **output, const vector_t *var_set, int i, 
     }
     str_resize(output, strlen(*output) + 3);
     strcat(*output, "]");
-    if(prob<0 && may_be_variant[may_be] != var_data[i]->pos){
+    if(prob<0 && may_be_variant->data[may_be] != var_data[i]->pos){
         strcat(*output, " may be variant\n");
     } 
     else {
